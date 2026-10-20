@@ -2,10 +2,11 @@
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>E-Posto · Gestão de Eletroposto</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f2f6f4;--card:#fff;--ink:#0d1f1a;--mut:#5f736b;--line:#dbe5e0;--ac:#0ea968;--acd:#fff;--livre:#0ea968;--res:#e59a0c;--uso:#2f6fe0;--off:#8a9892;--bad:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1512;--card:#13221d;--ink:#e6f2ed;--mut:#8fa69c;--line:#23382f;--ac:#2fd48b;--acd:#06130e}}
+:root{--bg:#fff;--card:#fff;--ink:#0d1f1a;--mut:#5f736b;--line:#dbe5e0;--ac:#0ea968;--acd:#fff;--livre:#0ea968;--res:#e59a0c;--uso:#2f6fe0;--off:#8a9892;--bad:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.45 'Space Grotesk',system-ui,sans-serif;min-height:100%}
 header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--ink);color:var(--bg);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
@@ -33,7 +34,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;display:none;z-index:40;max-width:90%}
 .login{max-width:380px;margin:6vh auto}.login h1{font-size:34px;margin:0}.login h1 span{color:var(--ac)}
 .demo{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.pcard{display:flex;gap:12px;cursor:pointer;align-items:stretch}.pimg{flex:0 0 118px}.pimg svg{width:100%;height:auto;border-radius:10px;display:block}.pinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.mapbox{position:relative;padding:0;overflow:hidden}.mapbox svg{display:block;width:100%;height:auto;touch-action:none;cursor:grab}.mapctl{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px}.mapctl button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:700 16px 'Space Grotesk',system-ui,sans-serif;cursor:pointer}.num{display:inline-block;min-width:22px;height:22px;line-height:22px;text-align:center;border-radius:99px;background:var(--ac);color:var(--acd);font-weight:700;font-size:12px;margin-right:6px}
+.pcard{display:flex;gap:12px;cursor:pointer;align-items:stretch}.pimg{flex:0 0 118px}.pimg svg{width:100%;height:auto;border-radius:10px;display:block}.pinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.mapbox{position:relative;padding:0;overflow:hidden}#lmap{height:340px;border-radius:14px}.mapbox .leaflet-control-attribution{font-size:10px}.vimg img{width:100%;aspect-ratio:2/1;object-fit:cover;display:block;border-radius:10px;background:#eef2f0}.mapctl{position:absolute;right:8px;top:8px;z-index:500;display:flex;flex-direction:column;gap:6px}.mapctl button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:700 16px 'Space Grotesk',system-ui,sans-serif;cursor:pointer}.num{display:inline-block;min-width:22px;height:22px;line-height:22px;text-align:center;border-radius:99px;background:var(--ac);color:var(--acd);font-weight:700;font-size:12px;margin-right:6px}
 .chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:8px 16px;font:inherit;cursor:pointer}.chip.on{border-color:var(--ac);background:var(--ac);color:var(--acd);font-weight:700}.chip.cal{display:inline-flex;align-items:center;gap:6px;position:relative;margin:0;font-size:15px}.chip.cal input{position:absolute;inset:0;opacity:0;width:100%;height:100%;padding:0;cursor:pointer}
 .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.slot{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 0;font:inherit;cursor:pointer}.slot.on{border-color:var(--ac);background:var(--ac);color:var(--acd);font-weight:700}.slot:disabled{opacity:.35;cursor:not-allowed}
 .opt{border:2px solid var(--line);border-radius:14px;padding:10px;cursor:pointer;background:var(--card);display:flex;flex-direction:column;gap:4px}.opt.on{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 20%,transparent)}.opt.off{opacity:.5;cursor:not-allowed}
@@ -98,7 +99,7 @@ disp(){
  if(!loc)return`<h2>Eletropostos próximos</h2><div class="card mut">Obtendo sua localização…</div>`;
  const L=nearby(),src=loc.src==='gps'?'📍 Sua localização atual':'📍 Localização de exemplo: Centro de Manaus';
  return`<h2>Eletropostos próximos</h2><div class="row" style="margin-bottom:8px"><span class="mut">${src} · raio de 7 km</span>${loc.src==='gps'?`<button class="btn s" onclick="setLoc(DEF,'exemplo')">Usar Centro de Manaus (exemplo)</button>`:`<button class="btn s" onclick="pedeLoc()">Usar minha localização</button>`}</div>
- <div class="card mapbox"><svg id="mapsvg" viewBox="0 0 360 280" role="img" aria-label="Mapa com sua localização e os eletropostos num raio de 7 km"></svg><div class="mapctl"><button onclick="zoom(1.3)" aria-label="Aproximar">+</button><button onclick="zoom(1/1.3)" aria-label="Afastar">−</button><button onclick="recentra()" aria-label="Centralizar">◎</button></div></div>
+ <div class="card mapbox"><div id="lmap" role="region" aria-label="Mapa com sua localização e os eletropostos num raio de 7 km"></div><div class="mapctl"><button onclick="recentra()" aria-label="Centralizar">◎</button></div></div>
  ${L.length?L.map((p,i)=>pcard(p,i)).join(''):`<div class="card">Nenhum eletroposto em até 7 km da sua localização.<button class="btn w" onclick="setLoc(DEF,'exemplo')">Usar Centro de Manaus (exemplo)</button></div>`}
  <p class="mut">Toque em um eletroposto para abrir a reserva. Endereços, imagens e proprietários são fictícios.</p>`},
 res(){const vs=db.veiculos.filter(v=>v.uid===me.id);
@@ -142,7 +143,7 @@ cart(){const cs=db.cartoes.filter(c=>c.uid===me.id);
 veic(){const vs=db.veiculos.filter(v=>v.uid===me.id);
  return`<h2>Meus veículos</h2><div class="grid">${vs.map(v=>`<div class="card"><div class="vimg">${vImg(v)}</div><b>${esc(v.marca)} ${esc(v.modelo)}</b> <span class="mut">${v.ano}</span><div class="mut">${esc(v.placa)} · ${v.bateria} kWh · ${esc(v.carroc||'Hatch')}</div><div class="cic" style="margin-top:6px">${connIcon(v.conector,22)}${esc(v.conector)}</div></div>`).join('')}</div>
 <div class="card"><b>Novo veículo</b><label>Marca</label><input id="vm"><label>Modelo</label><input id="vo"><label>Ano</label><input id="va" type="number">
-<label>Placa</label><input id="vp"><label>Carroceria</label><select id="vk"><option>Hatch</option><option>Sedan</option><option>SUV</option></select><label>Conector</label><select id="vc"><option>CCS2</option><option>Tipo 2</option><option>CHAdeMO</option></select><label>Bateria (kWh)</label><input id="vb" type="number">
+<label>Placa</label><input id="vp"><label>Carroceria</label><select id="vk"><option>Hatch</option><option>Sedan</option><option>SUV</option></select><label>Conector</label><select id="vc"><option>CCS2</option><option>Tipo 2</option><option>CHAdeMO</option></select><label>Bateria (kWh)</label><input id="vb" type="number"><label>URL da foto (opcional)</label><input id="vf" placeholder="https://… link de uma foto do carro">
 <button class="btn w" onclick="addVeic()">Salvar veículo</button></div>`},
 hist(){const ss=db.sessoes.filter(s=>s.uid===me.id&&s.status==='encerrada').sort((a,b)=>b.ini-a.ini);
  return`<h2>Histórico de recargas</h2>${ss.map(s=>{const p=db.pagamentos.find(p=>p.sid===s.id);return`<div class="card"><div class="row"><b>${esc(cnm(s.cid))} · ${esc(pn(by('carregadores',s.cid).pid))} · ${D(s.ini)}</b>${tag(p.status)}</div><div class="mut">${s.kwh} kWh · ${R(s.valor)}${p.status==='pago'?` · pago${p.pagoEm?' em '+D(p.pagoEm):''} · ${esc(p.forma)}`:''}</div>
@@ -192,25 +193,17 @@ function setLoc(l,src){loc={lat:l.lat,lng:l.lng,src};mp=null;if(me&&tab==='disp'
 function pedeLoc(){let ok=0;const fb=()=>{if(!ok){ok=1;setLoc(DEF,'exemplo')}};
  try{navigator.geolocation.getCurrentPosition(p=>{ok=1;setLoc({lat:p.coords.latitude,lng:p.coords.longitude},'gps')},fb,{timeout:6000,maximumAge:60000})}catch(e){fb()}
  setTimeout(fb,7000)}
-function mapInit(){if(!loc)return;if(!mp)mp={lat:loc.lat,lng:loc.lng,z:18,moved:false,drag:null};mapRender();const s=$('#mapsvg');
- s.onpointerdown=e=>{mp.drag={x:e.clientX,y:e.clientY};mp.moved=false};s.onwheel=e=>{e.preventDefault();zoom(e.deltaY<0?1.2:1/1.2)}}
-document.addEventListener('pointermove',e=>{if(!mp||!mp.drag)return;const s=$('#mapsvg');if(!s)return;const r=s.getBoundingClientRect(),sc=360/r.width,dx=(e.clientX-mp.drag.x)*sc,dy=(e.clientY-mp.drag.y)*sc;
- if(!mp.moved&&Math.abs(dx)+Math.abs(dy)<4)return;mp.moved=true;mp.lng-=dx/(111.32*Math.cos(rad(mp.lat))*mp.z);mp.lat+=dy/(111.32*mp.z);mp.drag={x:e.clientX,y:e.clientY};mapRender()});
-document.addEventListener('pointerup',()=>{if(mp){mp.drag=null;setTimeout(()=>{if(mp)mp.moved=false},80)}});
-const zoom=f=>{if(!mp)return;mp.z=Math.min(80,Math.max(5,mp.z*f));mapRender()};
-const recentra=()=>{if(!mp)return;mp.lat=loc.lat;mp.lng=loc.lng;mp.z=18;mapRender()};
-function mapRender(){const s=$('#mapsvg');if(!s||!mp||!loc)return;const W=360,H=280,ky=111.32,kx=ky*Math.cos(rad(mp.lat)),z=mp.z,
- P=(la,ln)=>[W/2+(ln-mp.lng)*kx*z,H/2-(la-mp.lat)*ky*z],step=z>=14?1:z>=7?2:5;let o='<rect width="360" height="280" style="fill:var(--bg)"/>';
- for(let k=-40;k<=40;k++){const x=P(loc.lat,loc.lng+k*step/kx)[0],y=P(loc.lat+k*step/ky,loc.lng)[1];
-  if(x>0&&x<W)o+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}" style="stroke:var(--line)"/>`;
-  if(y>0&&y<H)o+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" style="stroke:var(--line)"/>`}
- const[u,v]=P(loc.lat,loc.lng);
- o+=`<circle cx="${u}" cy="${v}" r="${7*z}" stroke-dasharray="6 5" stroke-width="1.5" style="fill:var(--ac);fill-opacity:.07;stroke:var(--ac)"/><text x="${u}" y="${v-7*z-5}" font-size="10" text-anchor="middle" style="fill:var(--mut)">7 km</text>`;
- nearby().forEach((p,i)=>{const[x,y]=P(p.lat,p.lng),liv=db.carregadores.some(c=>c.pid===p.id&&st(c)==='livre');
-  o+=`<g transform="translate(${x},${y})" style="cursor:pointer" onclick="if(!mp.moved)abrirReserva('${p.id}')"><path d="M0 0C-9-10-12-14-12-20a12 12 0 1 1 24 0C12-14 9-10 0 0z" stroke="#fff" stroke-width="1.5" style="fill:var(${liv?'--livre':'--off'})"/><circle cy="-20" r="8" fill="#fff"/><text y="-16.5" font-size="11" font-weight="700" text-anchor="middle" fill="#0d1f1a">${i+1}</text></g>`});
- o+=`<g transform="translate(${u},${v})" style="pointer-events:none"><circle r="7" opacity=".4" style="fill:var(--uso)"><animate attributeName="r" values="7;18;7" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".45;0;.45" dur="2.2s" repeatCount="indefinite"/></circle><circle r="7" stroke="#fff" stroke-width="2.5" style="fill:var(--uso)"/></g><text x="${u}" y="${v+22}" font-size="10" font-weight="700" text-anchor="middle" style="fill:var(--uso);pointer-events:none">Você</text>`;
- o+=`<line x1="12" y1="266" x2="${12+step*z}" y2="266" stroke-width="2" style="stroke:var(--ink)"/><text x="12" y="258" font-size="10" style="fill:var(--ink)">${step} km</text>`;
- s.innerHTML=o}
+/* Mapa real com Leaflet + imagens gratuitas da Esri (sem chave). Na Esri a ordem é {z}/{y}/{x}. */
+function mapInit(){if(!loc)return;const el=$('#lmap');if(!el)return;
+ if(!window.L){el.innerHTML='<div class="mut" style="padding:16px">Não foi possível carregar o mapa (sem internet?).</div>';return}
+ if(mp)mp.remove();mp=L.map(el).setView([loc.lat,loc.lng],13);
+ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles &copy; Esri',maxZoom:19}).addTo(mp);
+ L.circle([loc.lat,loc.lng],{radius:7000,color:'#0ea968',weight:1.5,dashArray:'6 5',fillOpacity:.06}).addTo(mp);
+ L.circleMarker([loc.lat,loc.lng],{radius:8,color:'#fff',weight:3,fillColor:'#2f6fe0',fillOpacity:1}).addTo(mp).bindTooltip('Você');
+ nearby().forEach((p,i)=>{const liv=db.carregadores.some(c=>c.pid===p.id&&st(c)==='livre'),n=db.carregadores.filter(c=>c.pid===p.id&&st(c)==='livre').length,
+  ic=L.divIcon({className:'',iconSize:[28,36],iconAnchor:[14,36],popupAnchor:[0,-32],html:`<svg width="28" height="36" viewBox="-14 -34 28 36"><path d="M0 0C-9-10-12-14-12-20a12 12 0 1 1 24 0C12-14 9-10 0 0z" stroke="#fff" stroke-width="1.5" fill="${liv?'#0ea968':'#8a9892'}"/><circle cy="-20" r="8" fill="#fff"/><text y="-16.5" font-size="11" font-weight="700" text-anchor="middle" fill="#0d1f1a" font-family="sans-serif">${i+1}</text></svg>`});
+  L.marker([p.lat,p.lng],{icon:ic}).addTo(mp).bindPopup(`<b>${esc(p.nome)}</b><br>${esc(p.end)}<br>${p.km.toFixed(1).replace('.',',')} km · ${n} carregador(es) livre(s)<br><button class="btn s" style="margin-top:6px" onclick="abrirReserva('${p.id}')">Reservar</button>`)})}
+const recentra=()=>{if(mp&&loc)mp.setView([loc.lat,loc.lng],13)};
 const ACMAX=11,DCMAX=100,COMPAT={'CCS2':['CCS2','Tipo 2'],'Tipo 2':['Tipo 2'],'CHAdeMO':['CHAdeMO']};
 const okConn=(v,c)=>(COMPAT[v.conector]||[v.conector]).includes(c.conector),isDC=c=>c.conector!=='Tipo 2',cnm=id=>by('carregadores',id)?.nome||id;
 const pad2=n=>String(n).padStart(2,'0'),iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
@@ -222,7 +215,10 @@ function connIcon(t,s=26){const o=`<svg width="${s}" height="${s}" viewBox="0 0 
  if(t==='Tipo 2')return o+'<path d="M8 5h16l5 9a13 13 0 1 1-26 0z"/>'+pn([[16,11,1.7],[10,15,1.7],[22,15,1.7],[10,21,1.7],[22,21,1.7],[16,24,1.7],[16,17,1.7]])+'</svg>';
  if(t==='CCS2')return o+'<path d="M9 3h14l3 6a10 10 0 1 1-20 0z"/><rect x="5" y="19" width="22" height="10" rx="5"/>'+pn([[16,7,1.4],[11,10,1.4],[21,10,1.4],[13.5,14,1.4],[18.5,14,1.4],[11,24,2.6],[21,24,2.6]])+'</svg>';
  return o+'<circle cx="16" cy="16" r="13"/>'+pn([[10,11,2.8],[22,11,2.8],[16,17,1.7],[9,19,1.5],[23,19,1.5],[12.5,24,1.5],[19.5,24,1.5]])+'</svg>'}
-function vImg(v){const pal=['#d64545','#2f6fe0','#0ea968','#e59a0c','#7c5cd6','#26343b'],k=pal[[...(v.marca+v.modelo)].reduce((a,c)=>a+c.charCodeAt(0),0)%pal.length],t=v.carroc||'Hatch',
+const FOTOS={'byd dolphin':'2023_BYD_Dolphin.jpg','nissan leaf':'2018_Nissan_Leaf_Tekna_Front.jpg','volvo ex30':'Volvo_EX30_IMG_9286.jpg'};
+const fotoUrl=v=>v.foto||(FOTOS[(v.marca+' '+v.modelo).toLowerCase()]?'https://commons.wikimedia.org/wiki/Special:FilePath/'+FOTOS[(v.marca+' '+v.modelo).toLowerCase()]+'?width=480':'');
+function vImg(v){const u=fotoUrl(v);if(u&&!v._sf)return`<img src="${esc(u)}" alt="${esc(v.marca+' '+v.modelo)}" loading="lazy" referrerpolicy="no-referrer" onerror="(by('veiculos','${v.id}')||{})._sf=1;this.outerHTML=vSvg(by('veiculos','${v.id}')||{marca:'',modelo:''})">`;return vSvg(v)}
+function vSvg(v){const pal=['#d64545','#2f6fe0','#0ea968','#e59a0c','#7c5cd6','#26343b'],k=pal[[...(v.marca+v.modelo)].reduce((a,c)=>a+c.charCodeAt(0),0)%pal.length],t=v.carroc||'Hatch',
  B={Hatch:'M14 58h132a8 8 0 0 0 8-8v-9a10 10 0 0 0-8-10l-24-5-17-16H66L46 32l-30 5a10 10 0 0 0-8 10v3a8 8 0 0 0 6 8z',Sedan:'M10 58h140a8 8 0 0 0 8-8v-7a9 9 0 0 0-7-9l-21-4-15-14H62L44 30l-30 5a9 9 0 0 0-7 9v4a8 8 0 0 0 8 8z',SUV:'M12 60h136a8 8 0 0 0 8-8V40a10 10 0 0 0-8-10l-12-3-12-17H58L42 28l-28 6a10 10 0 0 0-8 10v8a8 8 0 0 0 6 8z'},
  W={Hatch:'M70 14h32l14 13H54z',Sedan:'M64 20h46l12 12H50z',SUV:'M62 14h40l12 13H48z'};
  return`<svg viewBox="0 0 160 80" role="img" aria-label="${esc(v.marca+' '+v.modelo)}"><ellipse cx="80" cy="71" rx="64" ry="4" fill="#0d1f1a" opacity=".13"/><path d="${B[t]||B.Hatch}" fill="${k}" stroke="#0d1f1a" stroke-width="1.4" stroke-linejoin="round"/><path d="${W[t]||W.Hatch}" fill="#cfe8f6" stroke="#0d1f1a" stroke-width="1"/><path d="M84 28v26" stroke="#0d1f1a" stroke-opacity=".3"/><rect x="146" y="40" width="8" height="5" rx="2" fill="#ffd66b"/><circle cx="40" cy="60" r="10" fill="#0d1f1a"/><circle cx="40" cy="60" r="4" fill="#cfd6d2"/><circle cx="120" cy="60" r="10" fill="#0d1f1a"/><circle cx="120" cy="60" r="4" fill="#cfd6d2"/></svg>`}
@@ -313,7 +309,7 @@ function reservar(){const f=view.f,c=f.c?by('carregadores',f.c):null,v=by('veicu
  db.reservas.push({id:uid(),uid:me.id,vid:f.v,cid:c.id,inicio:ini,status:'ativa'});save();toast(`Reserva confirmada: ${c.nome}, ${D(ini)} (2h).`);go('mres')}
 function cancelar(id){const r=by('reservas',id);if(r.inicio-Date.now()<H)return toast('Cancelamento só é permitido com mais de 1h de antecedência.');
  if(!confirm('Cancelar esta reserva?'))return;r.status='cancelada';save();draw();toast('Reserva cancelada e horário liberado.')}
-function addVeic(){const v={id:uid(),uid:me.id,marca:$('#vm').value.trim(),modelo:$('#vo').value.trim(),ano:+$('#va').value,placa:$('#vp').value.trim().toUpperCase(),conector:$('#vc').value,carroc:$('#vk').value,bateria:+$('#vb').value};
+function addVeic(){const v={id:uid(),uid:me.id,marca:$('#vm').value.trim(),modelo:$('#vo').value.trim(),ano:+$('#va').value,placa:$('#vp').value.trim().toUpperCase(),conector:$('#vc').value,carroc:$('#vk').value,bateria:+$('#vb').value,foto:($('#vf')?.value||'').trim()};
  if(!v.marca||!v.modelo||!v.ano||!v.placa||!(v.bateria>0))return toast('Preencha todos os campos corretamente.');db.veiculos.push(v);save();draw();toast('Veículo cadastrado.')}
 function togStatus(id){const c=by('carregadores',id);if(!podeOp(c))return toast(MSG);if(sessAtiva(id))return toast('Há sessão em andamento neste carregador.');c.base=c.base==='indisponivel'?'livre':'indisponivel';save();draw();toast(`${cnm(id)} agora está ${lbl(c.base)}.`)}
 function addCarr(){const nome=$('#nc').value.trim(),pid=$('#npo').value,p=+$('#np').value;if(!nome||!(p>0))return toast('Informe o nome e a potência.');

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa de Teste · E-Posto</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  body{margin:0;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#1d2b30}
+  header{background:#fff;padding:18px 20px 12px;border-bottom:3px solid #1F4E5F}
+  header h1{margin:0;font-size:24px;color:#1F4E5F}
+  header p{margin:4px 0 0;color:#5f7a85;font-size:14px}
+  .dica{margin:16px 20px;padding:12px 14px;background:#EEF4F6;border-left:4px solid #8A5A2B;font-size:14px}
+  #mapa{height:70vh;margin:0 20px;border:1px solid #D6DEE2}
+</style>
+</head>
+<body>
+<header>
+  <h1>Mapa de Teste · E-Posto</h1>
+  <p>Guilherme Fernandes · Demo com Leaflet (gratuito)</p>
+</header>
+<div class="dica">Clique em um alfinete para ver os dados. Clique em qualquer lugar vazio do mapa para adicionar um novo eletroposto.</div>
+<div id="mapa"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// 1. Criar o mapa dentro da div "mapa" e centralizar em Manaus (latitude, longitude, zoom).
+var mapa = L.map('mapa').setView([-3.1019, -60.0250], 12);
+
+// 2. Carregar as imagens (tiles) do mapa do servidor gratuito da Esri.
+//    Atenção: na Esri a ordem é {z}/{y}/{x} (o y vem antes do x).
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri',
+  maxZoom: 19
+}).addTo(mapa);
+
+// 3. Lista dos eletropostos fictícios. Cada item é um objeto com os dados do posto.
+var postos = [
+  { nome: 'E-Posto Centro',       lat: -3.1316, lng: -60.0233, status: 'Disponível', vagas: 4 },
+  { nome: 'E-Posto Adrianópolis', lat: -3.1000, lng: -60.0120, status: 'Ocupado',    vagas: 0 },
+  { nome: 'E-Posto Ponta Negra',  lat: -3.0700, lng: -60.0990, status: 'Disponível', vagas: 2 },
+  { nome: 'E-Posto Distrito',     lat: -3.1190, lng: -59.9600, status: 'Manutenção', vagas: 0 }
+];
+
+// 4. Para cada posto da lista, colocar um alfinete (marcador) com um balão (popup) de informações.
+postos.forEach(function (posto) {
+  L.marker([posto.lat, posto.lng])
+    .addTo(mapa)
+    .bindPopup('<b>' + posto.nome + '</b><br>Status: ' + posto.status + '<br>Vagas livres: ' + posto.vagas);
+});
+
+// 5. Quando o usuário clicar num lugar vazio do mapa, perguntar o nome do novo eletroposto.
+mapa.on('click', function (evento) {
+  var nome = prompt('Nome do novo eletroposto:');
+
+  // 6. Se a pessoa clicar em "Cancelar" (ou não digitar nada), não fazemos nada.
+  if (!nome) return;
+
+  // 7. Criar o alfinete no ponto clicado e já abrir o balão.
+  L.marker(evento.latlng)
+    .addTo(mapa)
+    .bindPopup('<b>' + nome + '</b><br>Novo cadastro (teste)')
+    .openPopup();
+});
+</script>
+</body>
+</html>
