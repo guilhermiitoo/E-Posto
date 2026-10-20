@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>E-Posto · Gestão de Eletroposto</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f6f4;--card:#fff;--ink:#0d1f1a;--mut:#5f736b;--line:#dbe5e0;--ac:#0ea968;--acd:#fff;--livre:#0ea968;--res:#e59a0c;--uso:#2f6fe0;--off:#8a9892;--bad:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1512;--card:#13221d;--ink:#e6f2ed;--mut:#8fa69c;--line:#23382f;--ac:#2fd48b;--acd:#06130e}}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 'Space Grotesk',system-ui,sans-serif;min-height:100%}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--ink);color:var(--bg);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+header b{font-size:18px;letter-spacing:.5px}header b span{color:var(--ac)}
+header small{opacity:.8;margin-right:10px}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:var(--card);border-bottom:1px solid var(--line)}
+nav button{white-space:nowrap;border:0;background:none;color:var(--mut);font:inherit;font-weight:500;padding:8px 14px;border-radius:99px;cursor:pointer}
+nav button.on{background:var(--ac);color:var(--acd)}
+main{max-width:860px;margin:0 auto;padding:16px}
+h2{margin:4px 0 12px;font-size:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 3px}
+input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+.btn{border:0;background:var(--ac);color:var(--acd);font:inherit;font-weight:700;padding:10px 16px;border-radius:10px;cursor:pointer}
+.btn.s{background:none;border:1px solid var(--line);color:var(--ink);font-weight:500;padding:6px 12px}
+.btn.d{background:var(--bad);color:#fff}.btn.w{width:100%;margin-top:12px}
+.tag{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700;color:#fff}
+.livre{background:var(--livre)}.reservado,.pendente{background:var(--res)}.em-uso,.ativa{background:var(--uso)}.indisponivel,.cancelada,.cancelado{background:var(--off)}.pago,.concluida,.encerrada{background:var(--livre)}
+.mut{color:var(--mut);font-size:13px}.big{font-size:26px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:500}
+.scroll{overflow-x:auto}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;display:none;z-index:40;max-width:90%}
+.login{max-width:380px;margin:6vh auto}.login h1{font-size:34px;margin:0}.login h1 span{color:var(--ac)}
+.demo{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pcard{display:flex;gap:12px;cursor:pointer;align-items:stretch}.pimg{flex:0 0 118px}.pimg svg{width:100%;height:auto;border-radius:10px;display:block}.pinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.mapbox{position:relative;padding:0;overflow:hidden}.mapbox svg{display:block;width:100%;height:auto;touch-action:none;cursor:grab}.mapctl{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px}.mapctl button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:700 16px 'Space Grotesk',system-ui,sans-serif;cursor:pointer}.num{display:inline-block;min-width:22px;height:22px;line-height:22px;text-align:center;border-radius:99px;background:var(--ac);color:var(--acd);font-weight:700;font-size:12px;margin-right:6px}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:8px 16px;font:inherit;cursor:pointer}.chip.on{border-color:var(--ac);background:var(--ac);color:var(--acd);font-weight:700}.chip.cal{display:inline-flex;align-items:center;gap:6px;position:relative;margin:0;font-size:15px}.chip.cal input{position:absolute;inset:0;opacity:0;width:100%;height:100%;padding:0;cursor:pointer}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.slot{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 0;font:inherit;cursor:pointer}.slot.on{border-color:var(--ac);background:var(--ac);color:var(--acd);font-weight:700}.slot:disabled{opacity:.35;cursor:not-allowed}
+.opt{border:2px solid var(--line);border-radius:14px;padding:10px;cursor:pointer;background:var(--card);display:flex;flex-direction:column;gap:4px}.opt.on{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 20%,transparent)}.opt.off{opacity:.5;cursor:not-allowed}
+.vrow{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}.vrow .opt{flex:0 0 160px}.vimg svg{width:100%;height:auto;display:block;background:var(--bg);border-radius:10px}.cic{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mut)}
+.est{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin-top:12px}.est>div{background:var(--bg);border-radius:12px;padding:10px;display:flex;flex-direction:column}.est b{font-size:17px}.est .mut{font-size:12px}input[type=range]{padding:0;border:0;background:none;accent-color:var(--ac)}
+.ccard{border-radius:14px;padding:12px 14px;color:#fff;font-size:13px;min-height:88px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}.cb{font-weight:700;letter-spacing:.5px}.cn{font-size:15px;letter-spacing:2px}.cm{display:flex;justify-content:space-between;opacity:.9;font-size:12px}
+</style></head><body>
+<div id="app"></div><div id="toast"></div>
+<script>
+const TARIFA=1.89, DUR=2*3600e3, H=3600e3;
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const R=n=>'R$ '+Number(n).toFixed(2).replace('.',','), D=t=>new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const uid=()=>Math.random().toString(36).slice(2,8);
+function seed(){const n=Date.now(),d=24*H,U=(id,nome,email,perfil,x)=>({id,nome,email,tel:'(92) 9'+id.slice(1).padStart(4,'0')+'-0000',senha:'123',perfil,ativo:true,...x});const G=(()=>{const s=[],p=[],r=[];for(let i=0;i<40;i++){const cid='C'+(1+(i*5)%14),u=i%2?'u13':'u14',ini=n-(i%29)*d-((i*3)%9+9)*H,kwh=10+(i*7)%36,v=+(kwh*TARIFA).toFixed(2);s.push({id:'sg'+i,cid,uid:u,vid:null,ini,fim:ini+H,kwh,valor:v,status:'encerrada'});p.push({id:'pg'+i,sid:'sg'+i,valor:v,forma:i%3?'PIX':'Visa •••• 4242',status:i%9==0?'pendente':'pago',pagoEm:ini+2*H});r.push({id:'rg'+i,uid:u,vid:null,cid,inicio:ini-H,status:i%7==0?'cancelada':'concluida'})}return{s,p,r}})();return{postos:[{id:'p1',nome:'Amazon Volt Centro',end:'Av. Eduardo Ribeiro, 520 – Centro, Manaus/AM',dono:'Amazon Volt',cor:'#0ea968',lat:-3.1325,lng:-60.0230},{id:'p2',nome:'Rio Negro Carga Adrianópolis',end:'Rua Rio Içá, 300 – Adrianópolis, Manaus/AM',dono:'Rio Negro Energia',cor:'#2f6fe0',lat:-3.1010,lng:-60.0150},{id:'p3',nome:'EletroNorte Chapada',end:'Av. Djalma Batista, 1661 – Chapada, Manaus/AM',dono:'EletroNorte',cor:'#e59a0c',lat:-3.0905,lng:-60.0215},{id:'p4',nome:'EletroNorte Cachoeirinha',end:'Av. Ayrão, 1100 – Cachoeirinha, Manaus/AM',dono:'EletroNorte',cor:'#e59a0c',lat:-3.1215,lng:-60.0090},{id:'p5',nome:'Boto Charge Aleixo',end:'Av. André Araújo, 2000 – Aleixo, Manaus/AM',dono:'Boto Charge',cor:'#7c5cd6',lat:-3.0840,lng:-59.9960},{id:'p6',nome:'Boto Charge Flores',end:'Av. Rodrigo Otávio, 3555 – Flores, Manaus/AM',dono:'Boto Charge',cor:'#7c5cd6',lat:-3.0870,lng:-60.0060}],
+ users:[{id:'u1',nome:'Ana Admin',email:'admin@eposto.com',tel:'(85) 90000-0001',senha:'123',perfil:'administrador',ativo:true},
+ {id:'u2',nome:'Otávio Operador',email:'operador@eposto.com',tel:'(85) 90000-0002',senha:'123',perfil:'operador',postoId:'p1',ativo:true},
+ {id:'u3',nome:'Gabi Gestora',email:'gestor@eposto.com',tel:'(85) 90000-0003',senha:'123',perfil:'gestor',postoIds:['p1'],ativo:true},
+ {id:'u4',nome:'Marco Souza',email:'marco@email.com',tel:'(85) 90000-0004',senha:'123',perfil:'cliente',ativo:true}].concat([U('u5','Carla Gestora','gestor2@eposto.com','gestor',{postoIds:['p2']}),U('u6','Rafael Operador','operador2@eposto.com','operador',{postoId:'p2'}),U('u7','Paulo Gestor','gestor3@eposto.com','gestor',{postoIds:['p3','p4']}),U('u8','Lia Operadora','operador3@eposto.com','operador',{postoId:'p3'}),U('u9','Davi Operador','operador4@eposto.com','operador',{postoId:'p4'}),U('u10','Marta Gestora','gestor4@eposto.com','gestor',{postoIds:['p5','p6']}),U('u11','Iago Operador','operador5@eposto.com','operador',{postoId:'p5'}),U('u12','Bia Operadora','operador6@eposto.com','operador',{postoId:'p6'}),U('u13','Júlia Ramos','julia@email.com','cliente',{}),U('u14','Pedro Lima','pedro@email.com','cliente',{})]),
+ veiculos:[{id:'v1',uid:'u4',marca:'BYD',modelo:'Dolphin',ano:2024,placa:'ABC1D23',conector:'CCS2',carroc:'Hatch',bateria:60},{id:'v2',uid:'u4',marca:'Nissan',modelo:'Leaf',ano:2019,placa:'DEF4G56',conector:'CHAdeMO',carroc:'Hatch',bateria:40},{id:'v3',uid:'u4',marca:'Volvo',modelo:'EX30',ano:2025,placa:'GHI7J89',conector:'CCS2',carroc:'SUV',bateria:69}],
+ carregadores:[{id:'C1',pid:'p1',nome:'Carregador 1',potencia:22,conector:'Tipo 2',base:'livre'},{id:'C2',pid:'p1',nome:'Carregador 2',potencia:50,conector:'CCS2',base:'livre'},{id:'C3',pid:'p2',nome:'Carregador 1',potencia:120,conector:'CCS2',base:'livre'},{id:'C4',pid:'p2',nome:'Carregador 2',potencia:50,conector:'CCS2',base:'indisponivel'},{id:'C5',pid:'p2',nome:'Carregador 3',potencia:22,conector:'Tipo 2',base:'livre'},{id:'C6',pid:'p3',nome:'Carregador 1',potencia:50,conector:'CCS2',base:'livre'},{id:'C7',pid:'p3',nome:'Carregador 2',potencia:50,conector:'CHAdeMO',base:'livre'},{id:'C8',pid:'p3',nome:'Carregador 3',potencia:22,conector:'Tipo 2',base:'livre'},{id:'C9',pid:'p4',nome:'Carregador 1',potencia:22,conector:'Tipo 2',base:'livre'},{id:'C10',pid:'p4',nome:'Carregador 2',potencia:120,conector:'CCS2',base:'livre'},{id:'C11',pid:'p5',nome:'Carregador 1',potencia:50,conector:'CCS2',base:'livre'},{id:'C12',pid:'p5',nome:'Carregador 2',potencia:22,conector:'Tipo 2',base:'livre'},{id:'C13',pid:'p6',nome:'Carregador 1',potencia:120,conector:'CCS2',base:'livre'},{id:'C14',pid:'p6',nome:'Carregador 2',potencia:50,conector:'CHAdeMO',base:'livre'}],
+ reservas:[{id:'r0',uid:'u4',vid:'v1',cid:'C2',inicio:n-2*d,status:'concluida'},{id:'r00',uid:'u4',vid:'v1',cid:'C3',inicio:n-d,status:'cancelada'}].concat(G.r),
+ sessoes:[{id:'s1',cid:'C2',uid:'u4',vid:'v1',ini:n-2*d,fim:n-2*d+1.5*H,kwh:32,valor:32*TARIFA,status:'encerrada'},{id:'s2',cid:'C3',uid:'u4',vid:'v1',ini:n-5*d,fim:n-5*d+H,kwh:45,valor:45*TARIFA,status:'encerrada'},{id:'s3',cid:'C1',uid:'u4',vid:'v1',ini:n-4*H,fim:n-2*H,kwh:18,valor:18*TARIFA,status:'encerrada'}].concat(G.s),
+ pagamentos:[{id:'p1',sid:'s1',valor:32*TARIFA,forma:'PIX',status:'pago'},{id:'p2',sid:'s2',valor:45*TARIFA,forma:'Cartão',status:'pago'},{id:'p3',sid:'s3',valor:18*TARIFA,forma:'',status:'pendente'}].concat(G.p),
+ cartoes:[{id:'k1',uid:'u4',bandeira:'Visa',final:'4242',val:'12/28',titular:'MARCO SOUZA'},{id:'k2',uid:'u4',bandeira:'Mastercard',final:'0002',val:'08/27',titular:'MARCO SOUZA'}]}}
+let db;try{db=JSON.parse(localStorage.getItem('eposto6'))}catch(e){}db=db||seed();
+const save=()=>{try{localStorage.setItem('eposto6',JSON.stringify(db))}catch(e){}};
+let me=null,tab='',view={ap:{}},toastT,loc=null,mp=null;
+const toast=m=>{const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',3200)};
+const by=(a,id)=>db[a].find(x=>x.id===id);
+const sessAtiva=c=>db.sessoes.find(s=>s.cid===c&&s.status==='ativa');
+const resAgora=(c,n=Date.now())=>db.reservas.find(r=>r.cid===c&&r.status==='ativa'&&r.inicio<=n&&n<r.inicio+DUR);
+function st(c){if(c.base==='indisponivel')return'indisponivel';if(sessAtiva(c.id))return'em-uso';if(resAgora(c.id))return'reservado';return'livre'}
+const lbl=s=>({'em-uso':'em uso',indisponivel:'indisponível'}[s]||s);
+const tag=s=>`<span class="tag ${s}">${lbl(s)}</span>`;
+const TABS={cliente:[['disp','Disponibilidade'],['res','Reservar'],['mres','Minhas reservas'],['veic','Veículos'],['hist','Histórico'],['cart','Cartões']],
+ operador:[['painel','Painel'],['sess','Sessões']],gestor:[['rel','Relatórios']],
+ administrador:[['painel','Painel'],['sess','Sessões'],['rel','Relatórios'],['users','Usuários']]};
+
+/* ---------- Auth ---------- */
+function loginView(){return`<div class="login"><h1>E-<span>Posto</span></h1><p class="mut">Gestão de eletroposto · protótipo</p>
+<div class="card"><label>E-mail</label><input id="le" type="email"><label>Senha</label><input id="ls" type="password">
+<button class="btn w" onclick="login($('#le').value,$('#ls').value)">Entrar</button>
+<button class="btn s w" onclick="view.cad=1;draw()">Criar conta de cliente</button>
+<div class="mut" style="margin-top:12px">Acesso rápido (demo):</div><div class="demo">
+${['marco@email.com:Cliente','operador@eposto.com:Operador','gestor@eposto.com:Gestor','admin@eposto.com:Admin'].map(x=>{const[e,n]=x.split(':');return`<button class="btn s" onclick="login('${e}','123')">${n}</button>`}).join('')}</div></div></div>`}
+function cadView(){return`<div class="login"><h1>Criar conta</h1><div class="card">
+<label>Nome</label><input id="cn"><label>E-mail</label><input id="ce" type="email"><label>Telefone</label><input id="ct"><label>Senha</label><input id="cs" type="password">
+<button class="btn w" onclick="cadastrar()">Cadastrar</button><button class="btn s w" onclick="view.cad=0;draw()">Voltar</button></div></div>`}
+function cadastrar(){const n=$('#cn').value.trim(),e=$('#ce').value.trim().toLowerCase(),t=$('#ct').value.trim(),s=$('#cs').value;
+ if(!n||!e||!t||!s)return toast('Preencha todos os campos.');if(!/^\S+@\S+\.\S+$/.test(e))return toast('E-mail inválido.');
+ if(db.users.some(u=>u.email===e))return toast('Já existe uma conta com este e-mail.');
+ db.users.push({id:uid(),nome:n,email:e,tel:t,senha:s,perfil:'cliente',ativo:true});save();view.cad=0;draw();toast('Cadastro realizado! Faça login.')}
+function login(e,s){const u=db.users.find(x=>x.email===e.trim().toLowerCase()&&x.senha===s);
+ if(!u)return toast('E-mail ou senha inválidos.');if(!u.ativo)return toast('Conta desativada. Procure o administrador.');
+ me=u;tab=TABS[u.perfil][0][0];draw()}
+const logout=()=>{me=null;draw()};
+const can=(...p)=>p.includes(me.perfil);
+
+/* ---------- Telas ---------- */
+const screens={
+disp(){
+ if(!loc)return`<h2>Eletropostos próximos</h2><div class="card mut">Obtendo sua localização…</div>`;
+ const L=nearby(),src=loc.src==='gps'?'📍 Sua localização atual':'📍 Localização de exemplo: Centro de Manaus';
+ return`<h2>Eletropostos próximos</h2><div class="row" style="margin-bottom:8px"><span class="mut">${src} · raio de 7 km</span>${loc.src==='gps'?`<button class="btn s" onclick="setLoc(DEF,'exemplo')">Usar Centro de Manaus (exemplo)</button>`:`<button class="btn s" onclick="pedeLoc()">Usar minha localização</button>`}</div>
+ <div class="card mapbox"><svg id="mapsvg" viewBox="0 0 360 280" role="img" aria-label="Mapa com sua localização e os eletropostos num raio de 7 km"></svg><div class="mapctl"><button onclick="zoom(1.3)" aria-label="Aproximar">+</button><button onclick="zoom(1/1.3)" aria-label="Afastar">−</button><button onclick="recentra()" aria-label="Centralizar">◎</button></div></div>
+ ${L.length?L.map((p,i)=>pcard(p,i)).join(''):`<div class="card">Nenhum eletroposto em até 7 km da sua localização.<button class="btn w" onclick="setLoc(DEF,'exemplo')">Usar Centro de Manaus (exemplo)</button></div>`}
+ <p class="mut">Toque em um eletroposto para abrir a reserva. Endereços, imagens e proprietários são fictícios.</p>`},
+res(){const vs=db.veiculos.filter(v=>v.uid===me.id);
+ if(!vs.length)return`<div class="card">Cadastre um veículo antes de reservar.<br><button class="btn w" onclick="go('veic')">Cadastrar veículo</button></div>`;
+ const f=view.f||(view.f={}),hoje=isoOff(0),amanha=isoOff(1);
+ if(!f.v||!by('veiculos',f.v))f.v=vs[0].id;if(!f.p)f.p=view.rp||db.postos[0].id;if(!f.d||f.d<hoje)f.d=hoje;if(f.b0==null){f.b0=20;f.b1=80}
+ const p=by('postos',f.p),v=by('veiculos',f.v),cs=db.carregadores.filter(c=>c.pid===p.id),ac=COMPAT[v.conector]||[v.conector];
+ if(!cs.some(c=>c.id===f.c&&okConn(v,c)&&c.base!=='indisponivel'))f.c=(cs.find(c=>c.base!=='indisponivel'&&okConn(v,c))||{}).id||null;
+ const c=f.c?by('carregadores',f.c):null,hrs=[...Array(17)].map((_,i)=>i+6);
+ if(!hrs.includes(f.h)||!livreH(f,c,f.h))f.h=hrs.find(h=>livreH(f,c,h))??null;
+ const outra=f.d!==hoje&&f.d!==amanha;
+ return`<h2>Nova reserva</h2>
+<div class="card"><label style="margin-top:0">Eletroposto</label><input id="rq" type="search" placeholder="Buscar eletroposto por nome ou endereço" value="${esc(view.rq||'')}" oninput="view.rq=this.value;rList()" aria-label="Buscar eletroposto"><div id="rlist">${rInner(f)}</div>
+<div class="pcard" style="margin-top:10px;cursor:default"><div class="pimg">${postoImg(p)}</div><div class="pinfo"><b>${esc(p.nome)}</b><div class="mut">📍 ${esc(p.end)}</div><div class="mut">Proprietário: ${esc(p.dono)}</div></div></div></div>
+<div class="card"><b>1 · Veículo</b><div class="vrow" style="margin-top:8px">${vs.map(x=>`<div class="opt ${x.id===f.v?'on':''}" onclick="view.f.v='${x.id}';draw()"><div class="vimg">${vImg(x)}</div><b>${esc(x.marca)} ${esc(x.modelo)}</b><div class="mut">${esc(x.placa)} · ${x.bateria} kWh</div><div class="cic">${connIcon(x.conector,20)}${esc(x.conector)}</div></div>`).join('')}</div>
+<div class="row" style="justify-content:flex-start;gap:12px;margin-top:10px"><span class="mut">Aceita:</span>${ac.map(t=>`<span class="cic">${connIcon(t,22)}${t} (${t==='Tipo 2'?'AC':'DC'})</span>`).join('')}</div></div>
+<div class="card"><b>2 · Carregador</b><div class="grid" style="margin-top:8px">${cs.map(x=>{const off=x.base==='indisponivel',inc=!okConn(v,x),dis=off||inc;
+ return`<div class="opt ${x.id===f.c?'on':''} ${dis?'off':''}" ${dis?'':`onclick="view.f.c='${x.id}';draw()"`}><div class="row" style="flex-wrap:nowrap"><span style="color:${isDC(x)?'var(--uso)':'var(--ac)'}">${stIcon(34)}</span>${tag(st(x))}</div><div><b>${esc(x.nome)}</b> <span class="mut">ID ${x.id}</span></div><div class="cic">${connIcon(x.conector,20)}${x.conector} · ${isDC(x)?'DC':'AC'} · ${x.potencia} kW</div>${inc&&!off?'<div style="color:var(--bad);font-size:12px">Incompatível com o veículo</div>':''}</div>`}).join('')}</div></div>
+<div class="card"><b>3 · Data e horário</b><div class="row" style="justify-content:flex-start;margin:8px 0">
+<button class="chip ${f.d===hoje?'on':''}" onclick="view.f.d='${hoje}';draw()">Hoje</button><button class="chip ${f.d===amanha?'on':''}" onclick="view.f.d='${amanha}';draw()">Amanhã</button>
+<label class="chip cal ${outra?'on':''}" title="Escolher outra data">${calIcon}<span>${outra?fdate(f.d):'Outra data'}</span><input type="date" min="${hoje}" max="${isoOff(60)}" value="${f.d}" onchange="if(this.value){view.f.d=this.value;draw()}"></label></div>
+<div class="slots">${hrs.map(h=>`<button class="slot ${f.h===h?'on':''}" ${livreH(f,c,h)?'':'disabled'} onclick="view.f.h=${h};draw()">${pad2(h)}:00</button>`).join('')}</div>
+<p class="mut">Cada reserva dura 2h. Horários passados ou ocupados ficam desativados.</p></div>
+<div class="card"><b>4 · Estimativa de recarga</b>
+<label>Bateria atual: <b id="l0">${f.b0}%</b></label><input id="r0" type="range" min="0" max="90" step="5" value="${f.b0}" oninput="view.f.b0=+this.value;if(view.f.b1<=view.f.b0)view.f.b1=view.f.b0+5;upd()">
+<label>Meta de carga: <b id="l1">${f.b1}%</b></label><input id="r1" type="range" min="10" max="100" step="5" value="${f.b1}" oninput="view.f.b1=+this.value;if(view.f.b0>=view.f.b1)view.f.b0=view.f.b1-5;upd()">
+<div id="est" class="est">${estHTML(f,v,c)}</div>
+<p class="mut">Considera eficiência de 90%, o limite do veículo (AC ${ACMAX} kW · DC ${DCMAX} kW) e a tarifa de ${R(TARIFA)}/kWh. Valores aproximados.</p></div>
+<button class="btn w" onclick="reservar()">Confirmar reserva</button>`},
+mres(){const rs=db.reservas.filter(r=>r.uid===me.id).sort((a,b)=>b.inicio-a.inicio);
+ return`<h2>Minhas reservas</h2>${rs.map(r=>{const c=by('carregadores',r.cid),p=by('postos',c.pid),v=by('veiculos',r.vid),ativa=r.status==='ativa';
+ return`<div class="card" style="${ativa?'':'opacity:.85'}"><div class="pcard" style="cursor:default"><div class="pimg">${postoImg(p)}</div><div class="pinfo"><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><b>${esc(p.nome)}</b>${tag(r.status)}</div><div class="mut">📍 ${esc(p.end)}</div>
+ <div class="cic" style="color:var(--ink)">${calIcon}${D(r.inicio)} – ${D(r.inicio+DUR).slice(-5)}</div></div></div>
+ <div class="row" style="justify-content:flex-start;gap:14px;margin-top:10px"><span class="cic" style="color:${isDC(c)?'var(--uso)':'var(--ac)'}">${stIcon(30)}<span style="color:var(--ink)"><b>${esc(c.nome)}</b> <span class="mut">ID ${c.id}</span></span></span><span class="cic">${connIcon(c.conector,22)}${c.conector} · ${isDC(c)?'DC':'AC'} · ${c.potencia} kW</span></div>
+ <div class="row" style="margin-top:10px;flex-wrap:nowrap"><div class="row" style="justify-content:flex-start;flex-wrap:nowrap;min-width:0"><div class="vimg" style="width:84px;flex:none">${v?vImg(v):''}</div><div style="min-width:0"><b>${v?esc(v.marca+' '+v.modelo):'—'}</b><div class="mut">${v?esc(v.placa)+' · '+v.bateria+' kWh':''}</div></div></div>${ativa?`<button class="btn s" onclick="cancelar('${r.id}')">Cancelar</button>`:''}</div></div>`}).join('')||'<div class="card mut">Nenhuma reserva.</div>'}`},
+cart(){const cs=db.cartoes.filter(c=>c.uid===me.id);
+ return`<h2>Meus cartões</h2><div class="grid">${cs.map(c=>`<div class="card">${cardVisual(c)}<div class="row" style="margin-top:8px"><span class="mut">Final ${c.final}</span><button class="btn s" onclick="delCartao('${c.id}')">Remover</button></div></div>`).join('')||'<div class="card mut">Nenhum cartão cadastrado.</div>'}</div>
+<div class="card"><b>Novo cartão</b><label>Número do cartão</label><input id="kn" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim()"><label>Nome impresso no cartão</label><input id="kt">
+<div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div style="flex:1"><label>Validade</label><input id="kv" placeholder="MM/AA" maxlength="5" inputmode="numeric" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,4).replace(/^(\\d{2})(\\d)/,'$1/$2')"></div><div style="flex:1"><label>CVV</label><input id="kc" inputmode="numeric" maxlength="4" placeholder="•••"></div></div>
+<button class="btn w" onclick="addCartao()">Salvar cartão</button><p class="mut">Protótipo: só a bandeira e os 4 últimos dígitos são guardados; número completo e CVV não são salvos. Cartão com final 0002 simula pagamento recusado.</p></div>`},
+veic(){const vs=db.veiculos.filter(v=>v.uid===me.id);
+ return`<h2>Meus veículos</h2><div class="grid">${vs.map(v=>`<div class="card"><div class="vimg">${vImg(v)}</div><b>${esc(v.marca)} ${esc(v.modelo)}</b> <span class="mut">${v.ano}</span><div class="mut">${esc(v.placa)} · ${v.bateria} kWh · ${esc(v.carroc||'Hatch')}</div><div class="cic" style="margin-top:6px">${connIcon(v.conector,22)}${esc(v.conector)}</div></div>`).join('')}</div>
+<div class="card"><b>Novo veículo</b><label>Marca</label><input id="vm"><label>Modelo</label><input id="vo"><label>Ano</label><input id="va" type="number">
+<label>Placa</label><input id="vp"><label>Carroceria</label><select id="vk"><option>Hatch</option><option>Sedan</option><option>SUV</option></select><label>Conector</label><select id="vc"><option>CCS2</option><option>Tipo 2</option><option>CHAdeMO</option></select><label>Bateria (kWh)</label><input id="vb" type="number">
+<button class="btn w" onclick="addVeic()">Salvar veículo</button></div>`},
+hist(){const ss=db.sessoes.filter(s=>s.uid===me.id&&s.status==='encerrada').sort((a,b)=>b.ini-a.ini);
+ return`<h2>Histórico de recargas</h2>${ss.map(s=>{const p=db.pagamentos.find(p=>p.sid===s.id);return`<div class="card"><div class="row"><b>${esc(cnm(s.cid))} · ${esc(pn(by('carregadores',s.cid).pid))} · ${D(s.ini)}</b>${tag(p.status)}</div><div class="mut">${s.kwh} kWh · ${R(s.valor)}${p.status==='pago'?` · pago${p.pagoEm?' em '+D(p.pagoEm):''} · ${esc(p.forma)}`:''}</div>
+ ${p.status==='pendente'?`<button class="btn w" onclick="abrirPag('${p.id}')">Pagar ${R(p.valor)}</button>`:''}</div>`}).join('')||'<div class="card mut">Sem recargas ainda.</div>'}
+ <p class="mut">Pagamentos simulados — sem transação real.</p>`},
+painel(){
+ if(me.perfil==='administrador'){const p=view.ap.painel&&by('postos',view.ap.painel);
+  if(!p)return'<h2>Eletropostos</h2>'+pickerHTML('painel');
+  return backBar('painel',p)+gridC(db.carregadores.filter(c=>c.pid===p.id))+novoCarr(p.id)}
+ return painelHead()+gridC(meusC())},
+sess(){const adm=me.perfil==='administrador',p=adm&&view.ap.sess?by('postos',view.ap.sess):null;
+ if(adm&&!p)return'<h2>Sessões · escolha um eletroposto</h2>'+pickerHTML('sess');
+ const ok=s=>podeOp(by('carregadores',s.cid))&&(!p||by('carregadores',s.cid).pid===p.id),at=db.sessoes.filter(s=>s.status==='ativa'&&ok(s)),ec=db.sessoes.filter(s=>s.status==='encerrada'&&ok(s)).sort((a,b)=>b.ini-a.ini).slice(0,8);
+ return`${p?backBar('sess',p):''}<h2>Sessões em andamento</h2>${at.map(s=>`<div class="card"><div class="row"><span><b>${esc(cnm(s.cid))}</b> <span class="mut">${esc(pn(by('carregadores',s.cid).pid))}</span></span>${tag('em-uso')}</div><div class="mut">${esc(by('users',s.uid).nome)} · ${esc(vn(s.vid))} · início ${D(s.ini)}</div>
+ <label>Energia consumida (kWh)</label><input id="k${s.id}" type="number" step="0.1" min="0"><button class="btn w" onclick="encerrar('${s.id}')">Encerrar e calcular cobrança</button></div>`).join('')||'<div class="card mut">Nenhuma sessão ativa.</div>'}
+ <h2>Últimas sessões</h2><div class="card scroll"><table><tr><th>Carr.</th><th>Cliente</th><th>kWh</th><th>Valor</th><th>Pgto</th></tr>${ec.map(s=>`<tr><td>${esc(cnm(s.cid))}<div class="mut">${esc(pn(by('carregadores',s.cid).pid))}</div></td><td>${esc(by('users',s.uid).nome)}</td><td>${s.kwh}</td><td>${R(s.valor)}</td><td>${tag(db.pagamentos.find(q=>q.sid===s.id).status)}</td></tr>`).join('')}</table></div><p class="mut">Tarifa fixa: ${R(TARIFA)}/kWh</p>`},
+rel(){const adm=me.perfil==='administrador',sel=view.ap.rel,allowed=adm?db.postos.map(p=>p.id):(me.postoIds||[]);
+ if(adm&&!sel)return'<h2>Relatórios · escolha um eletroposto</h2>'+pickerHTML('rel','<button class="btn w" style="margin:0 0 12px" onclick="selPosto(\'rel\',\'*\')">Ver rede completa (todos os eletropostos)</button>');
+ const scope=sel&&sel!=='*'?[sel]:allowed,okC=cid=>scope.includes(by('carregadores',cid).pid),per=view.p??30,lim=per?Date.now()-per*24*H:0,cs=db.carregadores.filter(c=>okC(c.id)),
+ ss=db.sessoes.filter(s=>s.status==='encerrada'&&s.ini>=lim&&okC(s.cid)),pgOf=s=>db.pagamentos.find(q=>q.sid===s.id),pago=ss.reduce((a,s)=>a+(pgOf(s).status==='pago'?s.valor:0),0),pend=ss.reduce((a,s)=>a+(pgOf(s).status==='pendente'?s.valor:0),0),
+ kwh=ss.reduce((a,s)=>a+s.kwh,0),rs=db.reservas.filter(r=>r.inicio>=lim&&okC(r.cid)),canc=rs.filter(r=>r.status==='cancelada').length,mx=Math.max(1,...cs.map(c=>ss.filter(s=>s.cid===c.id).length)),
+ nd=per===0?30:per,d0=new Date();d0.setHours(0,0,0,0);
+ const dias=[...Array(nd)].map((_,i)=>{const t=new Date(d0);t.setDate(t.getDate()-(nd-1-i));const a=t.getTime(),ds=ss.filter(s=>s.ini>=a&&s.ini<a+24*H);return{l:pad2(t.getDate())+'/'+pad2(t.getMonth()+1),a:ds.reduce((z,s)=>z+(pgOf(s).status==='pago'?s.valor:0),0),b:ds.reduce((z,s)=>z+(pgOf(s).status==='pendente'?s.valor:0),0)}});
+ const en=scope.length===1?cs.map(c=>({l:c.nome,v:ss.filter(s=>s.cid===c.id).reduce((a,s)=>a+s.kwh,0)})):scope.map(id=>({l:pn(id),v:ss.filter(s=>by('carregadores',s.cid).pid===id).reduce((a,s)=>a+s.kwh,0)}));
+ const head=adm?(sel==='*'?'<button class="btn s" onclick="view.ap.rel=null;draw()">← Eletropostos</button><h2 style="margin-top:10px">Rede completa</h2>':backBar('rel',by('postos',sel))):'<h2>Relatórios</h2>',
+ chips=!adm&&allowed.length>1?`<div class="row" style="justify-content:flex-start;margin-bottom:12px"><button class="chip ${!sel?'on':''}" onclick="view.ap.rel=null;draw()">Todos os meus</button>${allowed.map(id=>`<button class="chip ${sel===id?'on':''}" onclick="view.ap.rel='${id}';draw()">${esc(pn(id))}</button>`).join('')}</div>`:'';
+ return`${head}${chips}<select onchange="view.p=+this.value;draw()" style="margin-bottom:12px"><option value="7" ${per==7?'selected':''}>Últimos 7 dias</option><option value="30" ${per==30?'selected':''}>Últimos 30 dias</option><option value="0" ${per===0?'selected':''}>Todo o período</option></select>
+ <div class="grid">${[['Sessões',ss.length],['Energia',fnum(kwh,'kWh')],['Faturamento (pago)',R(pago)],['Pendente',R(pend)],['Cancelamentos',canc]].map(([a,b])=>`<div class="card"><div class="mut">${a}</div><div class="big">${b}</div></div>`).join('')}</div>
+ <div class="card"><b>Faturamento por dia (R$)</b><div class="row mut" style="justify-content:flex-start;gap:12px;margin:4px 0"><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--livre)"></i> Pago</span><span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--res)"></i> Pendente</span></div>${barsSvg(dias)}</div>
+ <div class="grid"><div class="card"><b>Pagamentos</b>${donutSvg([{l:'Pagos',v:ss.filter(s=>pgOf(s).status==='pago').length,c:'var(--livre)'},{l:'Pendentes',v:ss.filter(s=>pgOf(s).status==='pendente').length,c:'var(--res)'}],'sessões')}</div>
+ <div class="card"><b>Reservas</b>${donutSvg([{l:'Concluídas',v:rs.filter(r=>r.status==='concluida').length,c:'var(--livre)'},{l:'Ativas',v:rs.filter(r=>r.status==='ativa').length,c:'var(--uso)'},{l:'Canceladas',v:canc,c:'var(--bad)'}],'reservas')}</div></div>
+ <div class="card"><b>Energia por ${scope.length===1?'carregador':'eletroposto'}</b>${hbars(en,'kWh')}</div>
+ <div class="card"><b>Utilização por carregador</b>${cs.map(c=>{const n=ss.filter(s=>s.cid===c.id).length;return`<div style="margin-top:10px"><div class="row mut"><span>${esc(c.nome)} · ${esc(pn(c.pid))}</span><span>${n} sessões</span></div><div class="bar"><i style="width:${n/mx*100}%"></i></div></div>`}).join('')}</div>`},
+users(){return`<h2>Usuários</h2><div class="card scroll"><table><tr><th>Nome</th><th>Perfil</th><th></th></tr>${db.users.map(u=>`<tr><td>${esc(u.nome)}<div class="mut">${esc(u.email)}</div></td><td>${u.perfil}${u.perfil==='operador'?`<br><select onchange="setPosto('${u.id}',this.value)"><option value="">Sem eletroposto</option>${db.postos.map(p=>`<option value="${p.id}" ${u.postoId===p.id?'selected':''}>${esc(p.nome)}</option>`).join('')}</select>`:u.perfil==='gestor'?`<br><span class="mut">${esc((u.postoIds||[]).map(pn).join(', ')||'Sem eletroposto')}</span>`:''}</td><td>${u.id===me.id?'':`<button class="btn s" onclick="togUser('${u.id}')">${u.ativo?'Desativar':'Ativar'}</button>`}</td></tr>`).join('')}</table></div>
+ <div class="card"><b>Novo funcionário</b><label>Nome</label><input id="fn"><label>E-mail</label><input id="fe" type="email"><label>Senha</label><input id="fs" type="password"><label>Perfil</label><select id="fp"><option value="operador">Operador</option><option value="gestor">Gestor</option><option value="administrador">Administrador</option></select><label>Eletroposto (obrigatório para operador e gestor)</label><select id="fpo"><option value="">—</option>${db.postos.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join('')}</select><button class="btn w" onclick="addFunc()">Criar</button></div>`}};
+const vn=id=>{const v=by('veiculos',id);return v?`${v.marca} ${v.modelo} · ${v.placa}`:'—'};
+const MSG='Você precisa estar cadastrado neste eletroposto para operar este carregador.';
+const pn=id=>by('postos',id)?.nome||'—',meusC=()=>me.perfil==='administrador'?db.carregadores:db.carregadores.filter(c=>c.pid===me.postoId),
+podeOp=c=>me.perfil==='administrador'||(me.perfil==='operador'&&me.postoId===c.pid);
+const painelHead=()=>me.perfil==='operador'?(me.postoId?`<h2>Painel · ${esc(pn(me.postoId))}</h2><div class="mut" style="margin-bottom:12px">📍 ${esc(by('postos',me.postoId).end)}</div>`:`<div class="card">Você ainda não está cadastrado em nenhum eletroposto. Peça ao administrador para vincular seu usuário.</div>`):'<h2>Painel dos carregadores</h2>';
+function setPosto(id,p){by('users',id).postoId=p||null;save();draw();toast('Vínculo atualizado.')}
+function reservarEm(c){const v=db.veiculos.find(v=>v.uid===me.id);view.rp=by('carregadores',c).pid;view.f=v?{v:v.id,p:view.rp,c,dia:0,h:Math.min(22,new Date().getHours()+1)}:null;go('res')}
+const DEF={lat:-3.1303,lng:-60.0233},rad=x=>x*Math.PI/180;
+const kmD=(a,b)=>{const x=Math.sin(rad(b.lat-a.lat)/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(rad(b.lng-a.lng)/2)**2;return 12742*Math.asin(Math.sqrt(x))};
+const nearby=()=>loc?db.postos.map(p=>({...p,km:kmD(loc,p)})).filter(p=>p.km<=7).sort((a,b)=>a.km-b.km):[];
+function setLoc(l,src){loc={lat:l.lat,lng:l.lng,src};mp=null;if(me&&tab==='disp')draw()}
+function pedeLoc(){let ok=0;const fb=()=>{if(!ok){ok=1;setLoc(DEF,'exemplo')}};
+ try{navigator.geolocation.getCurrentPosition(p=>{ok=1;setLoc({lat:p.coords.latitude,lng:p.coords.longitude},'gps')},fb,{timeout:6000,maximumAge:60000})}catch(e){fb()}
+ setTimeout(fb,7000)}
+function mapInit(){if(!loc)return;if(!mp)mp={lat:loc.lat,lng:loc.lng,z:18,moved:false,drag:null};mapRender();const s=$('#mapsvg');
+ s.onpointerdown=e=>{mp.drag={x:e.clientX,y:e.clientY};mp.moved=false};s.onwheel=e=>{e.preventDefault();zoom(e.deltaY<0?1.2:1/1.2)}}
+document.addEventListener('pointermove',e=>{if(!mp||!mp.drag)return;const s=$('#mapsvg');if(!s)return;const r=s.getBoundingClientRect(),sc=360/r.width,dx=(e.clientX-mp.drag.x)*sc,dy=(e.clientY-mp.drag.y)*sc;
+ if(!mp.moved&&Math.abs(dx)+Math.abs(dy)<4)return;mp.moved=true;mp.lng-=dx/(111.32*Math.cos(rad(mp.lat))*mp.z);mp.lat+=dy/(111.32*mp.z);mp.drag={x:e.clientX,y:e.clientY};mapRender()});
+document.addEventListener('pointerup',()=>{if(mp){mp.drag=null;setTimeout(()=>{if(mp)mp.moved=false},80)}});
+const zoom=f=>{if(!mp)return;mp.z=Math.min(80,Math.max(5,mp.z*f));mapRender()};
+const recentra=()=>{if(!mp)return;mp.lat=loc.lat;mp.lng=loc.lng;mp.z=18;mapRender()};
+function mapRender(){const s=$('#mapsvg');if(!s||!mp||!loc)return;const W=360,H=280,ky=111.32,kx=ky*Math.cos(rad(mp.lat)),z=mp.z,
+ P=(la,ln)=>[W/2+(ln-mp.lng)*kx*z,H/2-(la-mp.lat)*ky*z],step=z>=14?1:z>=7?2:5;let o='<rect width="360" height="280" style="fill:var(--bg)"/>';
+ for(let k=-40;k<=40;k++){const x=P(loc.lat,loc.lng+k*step/kx)[0],y=P(loc.lat+k*step/ky,loc.lng)[1];
+  if(x>0&&x<W)o+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}" style="stroke:var(--line)"/>`;
+  if(y>0&&y<H)o+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" style="stroke:var(--line)"/>`}
+ const[u,v]=P(loc.lat,loc.lng);
+ o+=`<circle cx="${u}" cy="${v}" r="${7*z}" stroke-dasharray="6 5" stroke-width="1.5" style="fill:var(--ac);fill-opacity:.07;stroke:var(--ac)"/><text x="${u}" y="${v-7*z-5}" font-size="10" text-anchor="middle" style="fill:var(--mut)">7 km</text>`;
+ nearby().forEach((p,i)=>{const[x,y]=P(p.lat,p.lng),liv=db.carregadores.some(c=>c.pid===p.id&&st(c)==='livre');
+  o+=`<g transform="translate(${x},${y})" style="cursor:pointer" onclick="if(!mp.moved)abrirReserva('${p.id}')"><path d="M0 0C-9-10-12-14-12-20a12 12 0 1 1 24 0C12-14 9-10 0 0z" stroke="#fff" stroke-width="1.5" style="fill:var(${liv?'--livre':'--off'})"/><circle cy="-20" r="8" fill="#fff"/><text y="-16.5" font-size="11" font-weight="700" text-anchor="middle" fill="#0d1f1a">${i+1}</text></g>`});
+ o+=`<g transform="translate(${u},${v})" style="pointer-events:none"><circle r="7" opacity=".4" style="fill:var(--uso)"><animate attributeName="r" values="7;18;7" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".45;0;.45" dur="2.2s" repeatCount="indefinite"/></circle><circle r="7" stroke="#fff" stroke-width="2.5" style="fill:var(--uso)"/></g><text x="${u}" y="${v+22}" font-size="10" font-weight="700" text-anchor="middle" style="fill:var(--uso);pointer-events:none">Você</text>`;
+ o+=`<line x1="12" y1="266" x2="${12+step*z}" y2="266" stroke-width="2" style="stroke:var(--ink)"/><text x="12" y="258" font-size="10" style="fill:var(--ink)">${step} km</text>`;
+ s.innerHTML=o}
+const ACMAX=11,DCMAX=100,COMPAT={'CCS2':['CCS2','Tipo 2'],'Tipo 2':['Tipo 2'],'CHAdeMO':['CHAdeMO']};
+const okConn=(v,c)=>(COMPAT[v.conector]||[v.conector]).includes(c.conector),isDC=c=>c.conector!=='Tipo 2',cnm=id=>by('carregadores',id)?.nome||id;
+const pad2=n=>String(n).padStart(2,'0'),iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+const isoOff=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)},fdate=s=>new Date(s+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
+const fm=m=>m>=60?`${Math.floor(m/60)} h ${pad2(Math.round(m%60))} min`:`${Math.round(m)} min`;
+const calIcon='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+const stIcon=s=>`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="7" y="4" width="14" height="24" rx="3"/><rect x="10" y="8" width="8" height="6" rx="1.5"/><path d="M15 17l-3 4h3l-1 4 4-5h-3z" fill="currentColor" stroke="none"/><path d="M21 12h3a2 2 0 0 1 2 2v8a2 2 0 0 0 2 2"/><path d="M5 28h18"/></svg>`;
+function connIcon(t,s=26){const o=`<svg width="${s}" height="${s}" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" role="img" aria-label="${t}">`,pn=a=>a.map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="currentColor" stroke="none"/>`).join('');
+ if(t==='Tipo 2')return o+'<path d="M8 5h16l5 9a13 13 0 1 1-26 0z"/>'+pn([[16,11,1.7],[10,15,1.7],[22,15,1.7],[10,21,1.7],[22,21,1.7],[16,24,1.7],[16,17,1.7]])+'</svg>';
+ if(t==='CCS2')return o+'<path d="M9 3h14l3 6a10 10 0 1 1-20 0z"/><rect x="5" y="19" width="22" height="10" rx="5"/>'+pn([[16,7,1.4],[11,10,1.4],[21,10,1.4],[13.5,14,1.4],[18.5,14,1.4],[11,24,2.6],[21,24,2.6]])+'</svg>';
+ return o+'<circle cx="16" cy="16" r="13"/>'+pn([[10,11,2.8],[22,11,2.8],[16,17,1.7],[9,19,1.5],[23,19,1.5],[12.5,24,1.5],[19.5,24,1.5]])+'</svg>'}
+function vImg(v){const pal=['#d64545','#2f6fe0','#0ea968','#e59a0c','#7c5cd6','#26343b'],k=pal[[...(v.marca+v.modelo)].reduce((a,c)=>a+c.charCodeAt(0),0)%pal.length],t=v.carroc||'Hatch',
+ B={Hatch:'M14 58h132a8 8 0 0 0 8-8v-9a10 10 0 0 0-8-10l-24-5-17-16H66L46 32l-30 5a10 10 0 0 0-8 10v3a8 8 0 0 0 6 8z',Sedan:'M10 58h140a8 8 0 0 0 8-8v-7a9 9 0 0 0-7-9l-21-4-15-14H62L44 30l-30 5a9 9 0 0 0-7 9v4a8 8 0 0 0 8 8z',SUV:'M12 60h136a8 8 0 0 0 8-8V40a10 10 0 0 0-8-10l-12-3-12-17H58L42 28l-28 6a10 10 0 0 0-8 10v8a8 8 0 0 0 6 8z'},
+ W={Hatch:'M70 14h32l14 13H54z',Sedan:'M64 20h46l12 12H50z',SUV:'M62 14h40l12 13H48z'};
+ return`<svg viewBox="0 0 160 80" role="img" aria-label="${esc(v.marca+' '+v.modelo)}"><ellipse cx="80" cy="71" rx="64" ry="4" fill="#0d1f1a" opacity=".13"/><path d="${B[t]||B.Hatch}" fill="${k}" stroke="#0d1f1a" stroke-width="1.4" stroke-linejoin="round"/><path d="${W[t]||W.Hatch}" fill="#cfe8f6" stroke="#0d1f1a" stroke-width="1"/><path d="M84 28v26" stroke="#0d1f1a" stroke-opacity=".3"/><rect x="146" y="40" width="8" height="5" rx="2" fill="#ffd66b"/><circle cx="40" cy="60" r="10" fill="#0d1f1a"/><circle cx="40" cy="60" r="4" fill="#cfd6d2"/><circle cx="120" cy="60" r="10" fill="#0d1f1a"/><circle cx="120" cy="60" r="4" fill="#cfd6d2"/></svg>`}
+const livreH=(f,c,h)=>{if(!c||c.base==='indisponivel')return false;const i=new Date(f.d+'T'+pad2(h)+':00:00').getTime();return i>Date.now()&&!db.reservas.some(r=>r.cid===c.id&&r.status==='ativa'&&i<r.inicio+DUR&&r.inicio<i+DUR)};
+function estHTML(f,v,c){if(!c)return'<div style="grid-column:1/-1" class="mut">Escolha um carregador compatível.</div>';const kwh=v.bateria*(f.b1-f.b0)/100,pe=Math.min(c.potencia,isDC(c)?DCMAX:ACMAX),min=kwh/(pe*.9)*60;
+ return`<div><span class="mut">Energia</span><b>${kwh.toFixed(1).replace('.',',')} kWh</b></div><div><span class="mut">Tempo</span><b>${fm(min)}</b><span class="mut">a ${pe} kW</span></div><div><span class="mut">Preço</span><b>${R(kwh*TARIFA)}</b></div>${min>120?'<div style="grid-column:1/-1;color:var(--res)">⚠ A recarga deve passar das 2h da reserva.</div>':''}`}
+function upd(){const f=view.f,v=by('veiculos',f.v),c=f.c?by('carregadores',f.c):null;$('#est').innerHTML=estHTML(f,v,c);$('#l0').textContent=f.b0+'%';$('#l1').textContent=f.b1+'%';$('#r0').value=f.b0;$('#r1').value=f.b1}
+function qrSvg(seed){const N=29;let h=0;for(const ch of seed)h=(h*31+ch.charCodeAt(0))>>>0;const rnd=()=>{h=(Math.imul(h,1664525)+1013904223)>>>0;return h/4294967296};
+ const m=[...Array(N)].map(()=>[...Array(N)].map(()=>rnd()<.5?1:0));
+ [[0,0],[N-7,0],[0,N-7]].forEach(([x,y])=>{for(let i=-1;i<8;i++)for(let j=-1;j<8;j++){const yy=y+i,xx=x+j;if(yy>=0&&yy<N&&xx>=0&&xx<N)m[yy][xx]=(i>=0&&i<7&&j>=0&&j<7&&(i%6==0||j%6==0||(i>=2&&i<=4&&j>=2&&j<=4)))?1:0}});
+ for(let i=8;i<N-8;i++){m[6][i]=i%2?0:1;m[i][6]=i%2?0:1}
+ let d='';for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(m[y][x])d+=`M${x} ${y}h1v1h-1z`;
+ return`<svg viewBox="-2 -2 ${N+4} ${N+4}" role="img" aria-label="QR Code Pix fictício" style="width:100%;height:auto;display:block;shape-rendering:crispEdges"><rect x="-2" y="-2" width="${N+4}" height="${N+4}" fill="#fff"/><path d="${d}" fill="#0d1f1a"/></svg>`}
+const pixCode=(p,n)=>'00020126580014br.gov.bcb.pix0136eposto-'+p.id+'-'+n+'-fictício5204000053039865406'+p.valor.toFixed(2)+'5802BR5908E-POSTO6006MANAUS62070503***6304F1C0';
+const BCOR={Visa:['#1a2f6b','#2f6fe0'],Mastercard:['#26343b','#d64545'],Elo:['#0d1f1a','#e59a0c'],Amex:['#0b6e5a','#0ea968']};
+const cardVisual=c=>{const k=BCOR[c.bandeira]||['#26343b','#5f736b'];return`<div class="ccard" style="background:linear-gradient(135deg,${k[0]},${k[1]})"><div class="cb">${esc(c.bandeira)}</div><div class="cn">•••• •••• •••• ${c.final}</div><div class="cm"><span>${esc(c.titular)}</span><span>${c.val}</span></div></div>`};
+function pixHTML(p){const g=view.pg;if(g.expired)return`<div style="text-align:center;padding:16px 0"><p><b>QR Code expirado</b></p><button class="btn w" onclick="view.pg.expired=false;view.pg.n++;view.pg.exp=Date.now()+6e5;pagDraw()">Gerar novo QR Code</button></div>`;
+ return`<div style="max-width:230px;margin:0 auto;padding:10px;background:#fff;border-radius:14px;border:1px solid var(--line)">${qrSvg(p.id+g.n)}</div>
+<p class="mut" style="text-align:center;margin:8px 0">Abra o app do seu banco e escaneie o QR Code.<br>Expira em <b id="pxt">10:00</b></p>
+<label>Pix copia e cola</label><div class="row" style="flex-wrap:nowrap"><input readonly value="${pixCode(p,g.n)}" style="font-size:12px"><button class="btn s" onclick="copiaPix()">Copiar</button></div>
+<button class="btn w" onclick="payPix()">Já paguei (simular)</button><p class="mut">QR Code fictício: não é possível pagar de verdade neste protótipo.</p>`}
+function cartHTML(p,cs){const g=view.pg;if(!cs.length)return`<div style="text-align:center;padding:12px 0"><p class="mut">Você ainda não tem cartões cadastrados.</p><button class="btn w" onclick="fechaPag();go('cart')">Cadastrar cartão</button></div>`;
+ return`<div style="display:grid;gap:10px">${cs.map(c=>`<div class="opt ${c.id===g.c?'on':''}" onclick="view.pg.c='${c.id}';pagDraw()">${cardVisual(c)}</div>`).join('')}</div>
+<label>CVV do cartão selecionado</label><input id="cvv" inputmode="numeric" maxlength="4" placeholder="•••" style="max-width:120px">
+<div id="perr" style="color:var(--bad);font-size:13px;margin-top:6px"></div>
+<button class="btn w" onclick="payCard()">Pagar ${R(p.valor)}</button><button class="btn s w" onclick="fechaPag();go('cart')">Gerenciar cartões</button>`}
+function pagHTML(){const g=view.pg,p=by('pagamentos',g.id),cs=db.cartoes.filter(c=>c.uid===me.id);
+ return`<div class="row"><b>Pagamento · ${R(p.valor)}</b><button class="btn s" onclick="fechaPag()" aria-label="Fechar">✕</button></div>
+<div class="row" style="justify-content:flex-start;margin:10px 0"><button class="chip ${g.t==='pix'?'on':''}" onclick="view.pg.t='pix';pagDraw()">Pix</button><button class="chip ${g.t==='cartao'?'on':''}" onclick="view.pg.t='cartao';pagDraw()">Cartão</button></div>${g.t==='pix'?pixHTML(p):cartHTML(p,cs)}`}
+const pagDraw=()=>{const b=$('#pagbox');if(b)b.innerHTML=pagHTML()};
+function abrirPag(id){const k=db.cartoes.find(c=>c.uid===me.id);view.pg={id,t:'pix',c:k?k.id:null,n:0,exp:Date.now()+6e5,expired:false};
+ const el=document.createElement('div');el.id='modal';el.style.cssText='position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:20;padding:16px';
+ el.innerHTML='<div class="card" id="pagbox" style="width:100%;max-width:420px;max-height:92vh;overflow:auto;margin:0"></div>';document.body.append(el);pagDraw();
+ clearInterval(view.pgT);view.pgT=setInterval(()=>{const t=$('#pxt');if(!view.pg||!t)return;const r=Math.max(0,Math.round((view.pg.exp-Date.now())/1000));if(!r){view.pg.expired=true;pagDraw()}else t.textContent=pad2(Math.floor(r/60))+':'+pad2(r%60)},1000)}
+function fechaPag(){clearInterval(view.pgT);const m=$('#modal');if(m)m.remove();view.pg=null}
+function quita(id,forma){const p=by('pagamentos',id);p.status='pago';p.forma=forma;p.pagoEm=Date.now();save();fechaPag();draw();toast(`Pagamento de ${R(p.valor)} confirmado (${forma}).`)}
+const payPix=()=>quita(view.pg.id,'PIX');
+function payCard(){const c=by('cartoes',view.pg.c),v=($('#cvv').value||'').trim();if(!c)return;
+ if(!/^\d{3,4}$/.test(v)){$('#perr').textContent='Informe o CVV do cartão.';return}
+ if(c.final==='0002'){$('#perr').textContent='Pagamento recusado pelo emissor (cartão de teste). Tente outro cartão ou Pix.';return}
+ quita(view.pg.id,c.bandeira+' •••• '+c.final)}
+function copiaPix(){try{navigator.clipboard.writeText(pixCode(by('pagamentos',view.pg.id),view.pg.n)).then(()=>toast('Código Pix copiado.'),()=>toast('Copie o código manualmente.'))}catch(e){toast('Copie o código manualmente.')}}
+function addCartao(){const n=$('#kn').value.replace(/\D/g,''),t=$('#kt').value.trim(),val=$('#kv').value.trim(),cv=$('#kc').value.trim();
+ if(n.length<13||n.length>16)return toast('Número do cartão inválido.');if(!t)return toast('Informe o nome impresso no cartão.');
+ const m=/^(0[1-9]|1[0-2])\/(\d{2})$/.exec(val);if(!m)return toast('Validade inválida (MM/AA).');const now=new Date();if(+('20'+m[2])*12+ +m[1]<now.getFullYear()*12+now.getMonth()+1)return toast('Cartão vencido.');
+ if(!/^\d{3,4}$/.test(cv))return toast('CVV inválido.');
+ const b=/^4/.test(n)?'Visa':/^(5[1-5]|2[2-7])/.test(n)?'Mastercard':/^3[47]/.test(n)?'Amex':/^(636|65|5067)/.test(n)?'Elo':'Cartão';
+ db.cartoes.push({id:uid(),uid:me.id,bandeira:b,final:n.slice(-4),val,titular:t.toUpperCase()});save();draw();toast('Cartão cadastrado.')}
+function delCartao(id){if(!confirm('Remover este cartão?'))return;db.cartoes=db.cartoes.filter(c=>c.id!==id);save();draw()}
+const norm=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(),postoMatch=(p,q)=>!q||norm(p.nome+' '+p.end+' '+p.dono).includes(norm(q));
+function postoBox(p,tab){const cs=db.carregadores.filter(c=>c.pid===p.id),n={livre:0,reservado:0,'em-uso':0,indisponivel:0};cs.forEach(c=>n[st(c)]++);
+ return`<div class="card pcard" onclick="selPosto('${tab}','${p.id}')"><div class="pimg">${postoImg(p)}</div><div class="pinfo"><b>${esc(p.nome)}</b><div class="mut">📍 ${esc(p.end)}</div><div class="mut">Proprietário: ${esc(p.dono)}</div><div style="font-size:13px">${cs.length} carregadores</div><div class="row" style="justify-content:flex-start;gap:4px"><span class="tag livre">${n.livre} livres</span><span class="tag em-uso">${n['em-uso']} em uso</span>${n.indisponivel?`<span class="tag indisponivel">${n.indisponivel} indisp.</span>`:''}</div></div></div>`}
+const pickInner=tab=>{const L=db.postos.filter(p=>postoMatch(p,view.aq));return L.length?L.map(p=>postoBox(p,tab)).join(''):'<div class="card mut">Nenhum eletroposto encontrado.</div>'},pickList=tab=>{const e=$('#plist');if(e)e.innerHTML=pickInner(tab)};
+const pickerHTML=(tab,extra='')=>`<div class="card" style="padding:10px"><input id="aq" type="search" placeholder="Buscar eletroposto por nome, endereço ou proprietário" value="${esc(view.aq||'')}" oninput="view.aq=this.value;pickList('${tab}')" aria-label="Buscar eletroposto"></div>${extra}<div id="plist">${pickInner(tab)}</div>`;
+function selPosto(tab,id){view.ap[tab]=id;view.aq='';draw()}
+const backBar=(tab,p)=>`<button class="btn s" onclick="view.ap['${tab}']=null;draw()">← Eletropostos</button><h2 style="margin-top:10px">${esc(p.nome)}</h2><div class="mut" style="margin-bottom:12px">📍 ${esc(p.end)}</div>`;
+const rInner=f=>{const q=view.rq;if(!q)return'';const L=db.postos.filter(p=>postoMatch(p,q)).slice(0,6);return L.length?L.map(p=>`<div class="opt ${p.id===f.p?'on':''}" style="margin-top:8px" onclick="view.f.p='${p.id}';view.f.c=null;view.rq='';draw()"><b>${esc(p.nome)}</b><span class="mut">📍 ${esc(p.end)}</span></div>`).join(''):'<p class="mut">Nenhum eletroposto encontrado.</p>'},rList=()=>{const e=$('#rlist');if(e)e.innerHTML=rInner(view.f)};
+const fnum=(v,u)=>v.toFixed(v%1?1:0).replace('.',',')+' '+u;
+function barsSvg(items){const W=360,Hh=190,L=40,B=24,T=10,mx=Math.max(1,...items.map(i=>i.a+i.b)),bw=(W-L-6)/items.length,g=bw*.2,e=Math.pow(10,Math.floor(Math.log10(mx))),m=mx/e,top=(m<=1?1:m<=2?2:m<=5?5:10)*e;let o='';
+ for(let k=0;k<=3;k++){const y=T+(Hh-T-B)*(1-k/3);o+=`<line x1="${L}" y1="${y}" x2="${W}" y2="${y}" style="stroke:var(--line)"/><text x="${L-4}" y="${y+3}" font-size="9" text-anchor="end" style="fill:var(--mut)">${Math.round(top*k/3)}</text>`}
+ items.forEach((it,i)=>{const x=L+i*bw+g/2,ha=(Hh-T-B)*it.a/top,hb=(Hh-T-B)*it.b/top,y0=Hh-B;o+=`<rect x="${x}" y="${y0-ha}" width="${bw-g}" height="${ha}" rx="2" style="fill:var(--livre)"/><rect x="${x}" y="${y0-ha-hb}" width="${bw-g}" height="${hb}" rx="2" style="fill:var(--res)"/>`;if(i%Math.ceil(items.length/6)===0)o+=`<text x="${x+(bw-g)/2}" y="${Hh-8}" font-size="9" text-anchor="middle" style="fill:var(--mut)">${it.l}</text>`});
+ return`<svg viewBox="0 0 ${W} ${Hh}" style="width:100%;height:auto;display:block" role="img" aria-label="Faturamento por dia em reais">${o}</svg>`}
+function donutSvg(parts,center){const t=parts.reduce((a,p)=>a+p.v,0),r=38,C=2*Math.PI*r;let off=0,o='';
+ if(t)parts.forEach(p=>{const len=C*p.v/t;o+=`<circle cx="50" cy="50" r="${r}" fill="none" stroke-width="14" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 50 50)" style="stroke:${p.c}"/>`;off+=len});else o=`<circle cx="50" cy="50" r="${r}" fill="none" stroke-width="14" style="stroke:var(--line)"/>`;
+ return`<div class="row" style="justify-content:flex-start;gap:14px;flex-wrap:nowrap;margin-top:8px"><svg viewBox="0 0 100 100" width="110" height="110" role="img" aria-label="${center}">${o}<text x="50" y="49" font-size="16" font-weight="700" text-anchor="middle" style="fill:var(--ink)">${t}</text><text x="50" y="62" font-size="8" text-anchor="middle" style="fill:var(--mut)">${center}</text></svg><div style="font-size:13px">${parts.map(p=>`<div><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${p.c};margin-right:6px"></span>${p.l}: <b>${p.v}</b></div>`).join('')}</div></div>`}
+const hbars=(items,u)=>items.map(i=>{const mx=Math.max(1,...items.map(x=>x.v));return`<div style="margin-top:10px"><div class="row mut"><span>${esc(i.l)}</span><span>${fnum(i.v,u)}</span></div><div class="bar"><i style="width:${i.v/mx*100}%"></i></div></div>`}).join('')||'<p class="mut">Sem dados.</p>';
+const gridC=list=>`<div class="grid">${list.map(c=>{const s=st(c),a=sessAtiva(c.id);
+ return`<div class="card"><div class="row"><span><b>${esc(c.nome)}</b> <span class="mut">ID ${c.id}</span></span>${tag(s)}</div><div class="cic">${connIcon(c.conector,20)}${c.conector} · ${isDC(c)?'DC':'AC'} · ${c.potencia} kW</div><div class="mut">${esc(pn(c.pid))}</div>${a?`<div class="mut">Em uso por ${esc(by('users',a.uid).nome)} desde ${D(a.ini)}</div>`:''}
+ <div class="row" style="margin-top:8px">${a?'':`<button class="btn s" onclick="togStatus('${c.id}')">${c.base==='indisponivel'?'Marcar disponível':'Marcar indisponível'}</button>`}
+ ${!a&&c.base!=='indisponivel'?`<button class="btn" onclick="iniciar('${c.id}')">Iniciar sessão</button>`:''}</div></div>`}).join('')||'<div class="card mut">Nenhum carregador neste eletroposto.</div>'}</div>`;
+const novoCarr=pid=>`<div class="card"><b>Novo carregador</b><p class="mut" style="margin:4px 0 0">O nome é único dentro do eletroposto; o ID (C + número) é único em todo o sistema.</p><label>Eletroposto</label><select id="npo">${db.postos.map(p=>`<option value="${p.id}" ${p.id===pid?'selected':''}>${esc(p.nome)}</option>`).join('')}</select><label>Nome</label><input id="nc" placeholder="ex: Carregador 3"><label>Tipo de conector</label><select id="nt"><option>CCS2</option><option>Tipo 2</option><option>CHAdeMO</option></select><label>Potência (kW)</label><input id="np" type="number"><button class="btn w" onclick="addCarr()">Adicionar</button></div>`;
+function abrirReserva(pid){const v=db.veiculos.find(v=>v.uid===me.id);view.rp=pid;view.f=v?{v:v.id,p:pid,c:null,dia:0,h:Math.min(22,new Date().getHours()+1)}:null;go('res')}
+function postoImg(p){const n=Math.min(3,db.carregadores.filter(c=>c.pid===p.id).length),k=p.cor,car=['#d64545','#2f6fe0','#f2f6f4','#0d1f1a','#e59a0c','#7c5cd6'][(+p.id.slice(1)-1)%6];let st='';
+ for(let j=0;j<n;j++){const x=142+j*26;st+=`<rect x="${x}" y="76" width="16" height="42" rx="4" fill="#f4f7f5" stroke="${k}" stroke-width="2"/><rect x="${x+3}" y="82" width="10" height="9" rx="2" fill="${k}"/><circle cx="${x+8}" cy="100" r="2.6" fill="#0ea968"/>`}
+ return`<svg viewBox="0 0 240 150" role="img" aria-label="Ilustração do eletroposto ${esc(p.nome)}"><rect width="240" height="150" fill="#cfe8f6"/><circle cx="205" cy="24" r="13" fill="#ffd66b"/><path d="M0 100h240v50H0z" fill="#4b5a55"/><path d="M0 132h240" stroke="#f2f6f4" stroke-width="2" stroke-dasharray="14 10"/><rect x="26" y="34" width="188" height="16" rx="4" fill="${k}"/><rect x="26" y="29" width="188" height="6" rx="2" fill="#1d3557"/><path d="M122 36l-7 9h6l-4 8 10-11h-6z" fill="#fff"/><rect x="38" y="50" width="6" height="68" fill="#e8eeeb"/><rect x="196" y="50" width="6" height="68" fill="#e8eeeb"/>${st}<path d="M142 98c-10 12-14 6-20 8" stroke="${k}" stroke-width="2" fill="none"/><path d="M52 112h66a6 6 0 0 0 6-6v-6a6 6 0 0 0-6-6l-10-1-8-9H78l-8 9-12 1a6 6 0 0 0-6 6v6a6 6 0 0 0 6 6z" fill="${car}" stroke="#0d1f1a" stroke-width="1.2"/><circle cx="70" cy="113" r="7" fill="#0d1f1a"/><circle cx="104" cy="113" r="7" fill="#0d1f1a"/></svg>`}
+function pcard(p,i){const cs=db.carregadores.filter(c=>c.pid===p.id),liv=cs.filter(c=>st(c)==='livre').length,tp={};cs.forEach(c=>tp[c.conector]=(tp[c.conector]||0)+1);
+ return`<div class="card pcard" onclick="abrirReserva('${p.id}')"><div class="pimg">${postoImg(p)}</div><div class="pinfo"><b><span class="num">${i+1}</span>${esc(p.nome)}</b><div class="mut">📍 ${esc(p.end)}</div><div style="font-size:13px"><b>${p.km.toFixed(1).replace('.',',')} km</b> · ${cs.length} carregadores</div><div class="row" style="justify-content:flex-start;gap:10px">${Object.entries(tp).map(([k,n])=>`<span class="cic">${connIcon(k,18)}${n}× ${k}</span>`).join('')}</div><div><span class="tag ${liv?'livre':'indisponivel'}">${liv} livre${liv===1?'':'s'}</span> <span class="mut">Proprietário: ${esc(p.dono)}</span></div></div></div>`}
+const go=t=>{tab=t;draw()};
+
+/* ---------- Ações ---------- */
+function reservar(){const f=view.f,c=f.c?by('carregadores',f.c):null,v=by('veiculos',f.v);
+ if(!c)return toast('Escolha um carregador compatível.');if(f.h==null)return toast('Escolha um horário.');
+ const ini=new Date(f.d+'T'+pad2(f.h)+':00:00').getTime();
+ if(ini<=Date.now())return toast('Horário inválido: escolha um horário futuro.');
+ if(c.base==='indisponivel')return toast('Carregador indisponível não pode ser reservado.');
+ if(!okConn(v,c))return toast('O conector deste carregador é incompatível com o veículo.');
+ if(db.reservas.some(r=>r.cid===c.id&&r.status==='ativa'&&ini<r.inicio+DUR&&r.inicio<ini+DUR))return toast('Carregador já reservado neste período.');
+ db.reservas.push({id:uid(),uid:me.id,vid:f.v,cid:c.id,inicio:ini,status:'ativa'});save();toast(`Reserva confirmada: ${c.nome}, ${D(ini)} (2h).`);go('mres')}
+function cancelar(id){const r=by('reservas',id);if(r.inicio-Date.now()<H)return toast('Cancelamento só é permitido com mais de 1h de antecedência.');
+ if(!confirm('Cancelar esta reserva?'))return;r.status='cancelada';save();draw();toast('Reserva cancelada e horário liberado.')}
+function addVeic(){const v={id:uid(),uid:me.id,marca:$('#vm').value.trim(),modelo:$('#vo').value.trim(),ano:+$('#va').value,placa:$('#vp').value.trim().toUpperCase(),conector:$('#vc').value,carroc:$('#vk').value,bateria:+$('#vb').value};
+ if(!v.marca||!v.modelo||!v.ano||!v.placa||!(v.bateria>0))return toast('Preencha todos os campos corretamente.');db.veiculos.push(v);save();draw();toast('Veículo cadastrado.')}
+function togStatus(id){const c=by('carregadores',id);if(!podeOp(c))return toast(MSG);if(sessAtiva(id))return toast('Há sessão em andamento neste carregador.');c.base=c.base==='indisponivel'?'livre':'indisponivel';save();draw();toast(`${cnm(id)} agora está ${lbl(c.base)}.`)}
+function addCarr(){const nome=$('#nc').value.trim(),pid=$('#npo').value,p=+$('#np').value;if(!nome||!(p>0))return toast('Informe o nome e a potência.');
+ if(db.carregadores.some(c=>c.pid===pid&&c.nome.toLowerCase()===nome.toLowerCase()))return toast('Já existe um carregador com este nome neste eletroposto.');
+ const n=Math.max(0,...db.carregadores.map(c=>+c.id.slice(1)||0))+1;db.carregadores.push({id:'C'+n,pid,nome,potencia:p,conector:$('#nt').value,base:'livre'});save();draw();toast('Carregador criado com ID C'+n+'.')}
+function iniciar(cid){if(!podeOp(by('carregadores',cid)))return toast(MSG);const cl=db.users.filter(u=>u.perfil==='cliente'&&u.ativo),r=resAgora(cid);
+ view.ini=cid;const el=document.createElement('div');el.id='modal';el.style.cssText='position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:20;padding:16px';
+ el.innerHTML=`<div class="card" style="width:100%;max-width:360px"><b>Iniciar sessão em ${esc(cnm(cid))}</b>${r?`<p class="mut">Reservado por ${esc(by('users',r.uid).nome)} neste horário.</p>`:''}
+ <label>Cliente</label><select id="mc" onchange="fillV()">${cl.map(u=>`<option value="${u.id}" ${r&&r.uid===u.id?'selected':''}>${esc(u.nome)}</option>`).join('')}</select><label>Veículo</label><select id="mv"></select>
+ <button class="btn w" onclick="confirmaIni()">Iniciar</button><button class="btn s w" onclick="$('#modal').remove()">Fechar</button></div>`;document.body.append(el);fillV()}
+function fillV(){$('#mv').innerHTML=db.veiculos.filter(v=>v.uid===$('#mc').value).map(v=>`<option value="${v.id}">${esc(vn(v.id))}</option>`).join('')}
+function confirmaIni(){const cid=view.ini,u=$('#mc').value,v=$('#mv').value,c=by('carregadores',cid),r=resAgora(cid);
+ if(!v)return toast('Cliente sem veículo cadastrado.');if(c.base==='indisponivel')return toast('Carregador indisponível.');if(sessAtiva(cid))return toast('Já existe sessão neste carregador.');
+ if(r&&r.uid!==u)return toast('Carregador reservado para outro cliente neste horário.');
+ if(r)r.status='concluida';db.sessoes.push({id:uid(),cid,uid:u,vid:v,ini:Date.now(),fim:null,kwh:null,valor:null,status:'ativa'});save();$('#modal').remove();draw();toast('Sessão iniciada.')}
+function encerrar(id){const s=by('sessoes',id);if(!podeOp(by('carregadores',s.cid)))return toast(MSG);const k=parseFloat($('#k'+id).value);if(!(k>=0)||isNaN(k))return toast('Informe um consumo válido (kWh).');
+ s.fim=Date.now();s.kwh=k;s.valor=+(k*TARIFA).toFixed(2);s.status='encerrada';db.pagamentos.push({id:uid(),sid:id,valor:s.valor,forma:'',status:'pendente'});save();draw();toast(`Sessão encerrada. Total: ${R(s.valor)} (pagamento pendente).`)}
+function pagar(id,forma){const p=by('pagamentos',id);p.forma=forma;
+ if(forma==='Cartão'&&Math.random()<.3){save();draw();return toast('Cartão recusado (simulado). Pagamento segue pendente.')}
+ p.status='pago';save();draw();toast(`Pagamento de ${R(p.valor)} confirmado via ${forma}.`)}
+function togUser(id){const u=by('users',id);u.ativo=!u.ativo;save();draw()}
+function addFunc(){const n=$('#fn').value.trim(),e=$('#fe').value.trim().toLowerCase(),s=$('#fs').value;if(!n||!e||!s)return toast('Preencha todos os campos.');
+ if(db.users.some(u=>u.email===e))return toast('E-mail já cadastrado.');if(['operador','gestor'].includes($('#fp').value)&&!$('#fpo').value)return toast('Operador e gestor precisam estar vinculados a um eletroposto.');db.users.push({id:uid(),nome:n,email:e,tel:'',senha:s,perfil:$('#fp').value,postoId:$('#fp').value==='operador'?$('#fpo').value:null,postoIds:$('#fp').value==='gestor'?[$('#fpo').value]:undefined,ativo:true});save();draw();toast('Funcionário criado.')}
+
+function draw(){const a=$('#app');
+ if(!me){a.innerHTML=view.cad?cadView():loginView();return}
+ a.innerHTML=`<header><b>E-<span>Posto</span></b><div><small>${esc(me.nome)} · ${me.perfil}</small><button class="btn s" style="color:#fff;border-color:#fff4" onclick="logout()">Sair</button></div></header>
+ <nav>${TABS[me.perfil].map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${n}</button>`).join('')}</nav><main>${screens[tab]()}</main>`;if(tab==='disp')mapInit()}
+pedeLoc();draw();
+</script></body></html>
