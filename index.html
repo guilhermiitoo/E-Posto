@@ -12,7 +12,7 @@
 body{background:var(--bg);color:var(--ink);font:15px/1.45 'Space Grotesk',system-ui,sans-serif;min-height:100%}
 header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--ink);color:var(--bg);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
 header b{font-size:18px;letter-spacing:.5px}header b span{color:var(--ac)}
-header small{opacity:.8;margin-right:10px}
+header small{opacity:.9;margin-right:8px;font-size:12px;white-space:nowrap}.saldo{color:var(--ac)}header>div{display:flex;align-items:center;min-width:0}
 nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:var(--card);border-bottom:1px solid var(--line)}
 nav button{white-space:nowrap;border:0;background:none;color:var(--mut);font:inherit;font-weight:500;padding:8px 14px;border-radius:99px;cursor:pointer}
 nav button.on{background:var(--ac);color:var(--acd)}
@@ -42,7 +42,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;p
 .vrow{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}.vrow .opt{flex:0 0 160px}.vimg svg{width:100%;height:auto;display:block;background:var(--bg);border-radius:10px}.cic{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mut)}
 .est{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin-top:12px}.est>div{background:var(--bg);border-radius:12px;padding:10px;display:flex;flex-direction:column}.est b{font-size:17px}.est .mut{font-size:12px}input[type=range]{padding:0;border:0;background:none;accent-color:var(--ac)}
 .ccard{border-radius:14px;padding:12px 14px;color:#fff;font-size:13px;min-height:88px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}.cb{font-weight:700;letter-spacing:.5px}.cn{font-size:15px;letter-spacing:2px}.cm{display:flex;justify-content:space-between;opacity:.9;font-size:12px}
-main.wide{max-width:1180px}.leaflet-container{font-family:inherit}
+main.wide{max-width:1180px}@media(max-width:600px){header{padding:10px 12px}header .btn.s{padding:5px 10px}.pimg{flex-basis:92px}.g2{grid-template-columns:1fr}main{padding:12px}.slots{grid-template-columns:repeat(3,1fr)}table{font-size:13px}}.leaflet-container{font-family:inherit}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}@media(max-width:700px){.kpis{grid-template-columns:repeat(2,1fr)}}.kpi{margin:0}.kl{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.4px}.kv{font-size:clamp(18px,5vw,24px);font-weight:700;margin:2px 0;white-space:nowrap}.kd{font-size:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}.kd .mut{font-size:12px}.up{color:var(--livre);font-weight:700}.down{color:var(--bad);font-weight:700}
 .g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}.g2>.card{margin-bottom:12px;min-width:0}
 .chbox{position:relative;height:240px;margin-top:8px}.dnut{height:190px}.dc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center}.dc b{font-size:17px}.dc span{font-size:11px;color:var(--mut)}
@@ -78,6 +78,7 @@ function seed(){const n=Date.now(),d=24*H,U=(id,nome,email,perfil,x)=>({id,nome,
  pagamentos:[{id:'p1',sid:'s1',valor:32*TARIFA,forma:'PIX',status:'pago'},{id:'p2',sid:'s2',valor:45*TARIFA,forma:'Cartão',status:'pago'},{id:'p3',sid:'s3',valor:18*TARIFA,forma:'',status:'pendente'}].concat(G.p),
  cartoes:[{id:'k1',uid:'u4',bandeira:'Visa',final:'4242',val:'12/28',titular:'MARCO SOUZA'},{id:'k2',uid:'u4',bandeira:'Mastercard',final:'0002',val:'08/27',titular:'MARCO SOUZA'}]}}
 let db;try{db=JSON.parse(localStorage.getItem('eposto7'))}catch(e){}db=db||seed();
+db.users.forEach(u=>{if(u.perfil==='cliente'&&u.saldo==null)u.saldo=u.id==='u4'?150:0});
 const save=()=>{try{localStorage.setItem('eposto7',JSON.stringify(db))}catch(e){}};
 let me=null,tab='',view={ap:{}},toastT,loc=null,mp=null;
 const toast=m=>{const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',3200)};
@@ -119,7 +120,7 @@ disp(){
  return`<h2>Eletropostos próximos</h2><div class="row" style="margin-bottom:8px"><span class="mut">${src} · raio de 7 km</span>${loc.src==='gps'?`<button class="btn s" onclick="setLoc(DEF,'exemplo')">Usar Centro de Manaus (exemplo)</button>`:`<button class="btn s" onclick="pedeLoc()">Usar minha localização</button>`}</div>
  <div class="card mapbox"><div id="lmap" role="region" aria-label="Mapa com sua localização e os eletropostos num raio de 7 km"></div><div class="mapctl"><button onclick="recentra()" aria-label="Centralizar">◎</button></div></div>
  ${L.length?`<div class="card perto" id="rotacard">${rotaCardHTML(L[0])}</div>`+L.map((p,i)=>pcard(p,i)).join(''):''}
- <p class="mut">Toque em um eletroposto para reservar, ou em 🧭 Rota para ver o caminho até ele. Endereços, imagens e proprietários são fictícios.</p>`},
+ <p class="mut">Toque em um eletroposto para ver o caminho até ele no mapa. Endereços, imagens e proprietários são fictícios.</p>`},
 res(){const vs=db.veiculos.filter(v=>v.uid===me.id);
  if(!vs.length)return`<div class="card">Cadastre um veículo antes de reservar.<br><button class="btn w" onclick="go('veic')">Cadastrar veículo</button></div>`;
  const f=view.f||(view.f={}),hoje=isoOff(0),amanha=isoOff(1);
@@ -146,7 +147,7 @@ res(){const vs=db.veiculos.filter(v=>v.uid===me.id);
 <label>Meta de carga: <b id="l1">${f.b1}%</b></label><input id="r1" type="range" min="10" max="100" step="5" value="${f.b1}" oninput="view.f.b1=+this.value;if(view.f.b0>=view.f.b1)view.f.b0=view.f.b1-5;upd()">
 <div id="est" class="est">${estHTML(f,v,c)}</div>
 <p class="mut">Considera eficiência de 90%, o limite do veículo (AC ${ACMAX} kW · DC ${DCMAX} kW) e a tarifa de ${R(TARIFA)}/kWh. Valores aproximados.</p></div>
-<button class="btn w" onclick="reservar()">Confirmar reserva</button>`},
+<div class="card perto"><b>Resumo</b><div class="mut">${esc(p.nome)} · ${c?esc(c.nome):'escolha um carregador'} · ${f.h!=null?fdate(f.d)+' às '+pad2(f.h)+':00':'escolha um horário'}</div><button class="btn w" onclick="reservar()" ${c&&f.h!=null?'':'disabled style="opacity:.5"'}>Confirmar reserva</button></div>`},
 mres(){const now=Date.now(),rs=db.reservas.filter(r=>r.uid===me.id),prox=rs.filter(r=>r.status==='ativa').sort((a,b)=>a.inicio-b.inicio),ant=rs.filter(r=>r.status!=='ativa').sort((a,b)=>b.inicio-a.inicio);
  return`<h2>Minhas reservas</h2><h3>Próximas</h3>${prox.map(r=>resCard(r,now)).join('')||`<div class="card mut">Nenhuma reserva ativa.<button class="btn w" onclick="go('res')">Fazer uma reserva</button></div>`}
  ${ant.length?`<h3>Anteriores</h3>${ant.map(r=>resCard(r,now)).join('')}`:''}`},
@@ -156,7 +157,7 @@ cart(){const cs=db.cartoes.filter(c=>c.uid===me.id),meus=db.pagamentos.map(p=>({
  return`<h2>Pagamentos</h2>
 <div class="card ${pend.length?'perto':''}"><div class="row"><b>Pendentes</b><span>${pend.length?`Total: <b>${R(tot)}</b>`:''}</span></div>
 ${pend.map(p=>`<div class="row" style="margin-top:10px;flex-wrap:nowrap"><div style="min-width:0">${linha(p)}</div><div style="text-align:right;flex:none"><b>${R(p.valor)}</b><br><button class="btn" style="margin-top:4px" onclick="abrirPag('${p.id}')">Pagar com Pix ou crédito</button></div></div>`).join('')||'<p class="mut" style="margin:6px 0 0">✓ Nenhum pagamento pendente.</p>'}</div>
-<div class="card"><b>Formas de pagamento aceitas</b><div class="row" style="justify-content:flex-start;gap:8px;margin-top:8px"><span class="chip on" style="cursor:default">Pix (QR Code ou copia e cola)</span><span class="chip" style="cursor:default">Cartão de crédito</span></div><p class="mut" style="margin-bottom:0">Ao tocar em pagar, escolha Pix ou crédito sem sair do app.</p></div>
+<div class="card"><b>Formas de pagamento aceitas</b><div class="row" style="justify-content:flex-start;gap:8px;margin-top:8px"><button class="chip on" onclick="${pend.length?`abrirPag('${pend[0].id}','pix')`:"toast('Nenhum pagamento pendente.')"}">Pix</button><button class="chip" onclick="${pend.length?`abrirPag('${pend[0].id}','cartao')`:"toast('Nenhum pagamento pendente.')"}">Cartão de crédito</button><button class="chip" onclick="${pend.length?`abrirPag('${pend[0].id}','saldo')`:"toast('Nenhum pagamento pendente.')"}">Carteira · ${R(me.saldo||0)}</button></div><p class="mut" style="margin-bottom:0">Toque numa forma para pagar o pendente mais recente.</p></div>
 <div class="card"><b>Pagos recentemente</b>${pagos.map(p=>`<div class="row" style="margin-top:10px;flex-wrap:nowrap"><div style="min-width:0">${linha(p)}<div class="mut">${esc(p.forma||'—')}</div></div><div style="text-align:right;flex:none"><b>${R(p.valor)}</b><br><span class="tag pago">pago</span></div></div>`).join('')||'<p class="mut">Nenhum pagamento ainda.</p>'}</div>
 <h3>Cartões de crédito</h3><div class="grid">${cs.map(c=>`<div class="card">${cardVisual(c)}<div class="row" style="margin-top:8px"><span class="mut">Final ${c.final}</span><button class="btn s" onclick="delCartao('${c.id}')">Remover</button></div></div>`).join('')||'<div class="card mut">Nenhum cartão cadastrado.</div>'}</div>
 <div class="card"><b>Novo cartão de crédito</b><label>Número do cartão</label><input id="kn" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim()"><label>Nome impresso no cartão</label><input id="kt">
@@ -185,14 +186,14 @@ sess(){const adm=me.perfil==='administrador',p=adm&&view.ap.sess?by('postos',vie
  <h2>Últimas sessões</h2><div class="card scroll"><table><tr><th>Carr.</th><th>Cliente</th><th>kWh</th><th>Valor</th><th>Pgto</th></tr>${ec.map(s=>`<tr><td>${esc(cnm(s.cid))}<div class="mut">${esc(pn(by('carregadores',s.cid).pid))}</div></td><td>${esc(by('users',s.uid).nome)}</td><td>${s.kwh}</td><td>${R(s.valor)}</td><td>${tag(db.pagamentos.find(q=>q.sid===s.id).status)}</td></tr>`).join('')}</table></div><p class="mut">Tarifa fixa: ${R(TARIFA)}/kWh</p>`},
 rel(){const adm=me.perfil==='administrador',sel=view.ap.rel,allowed=adm?db.postos.map(p=>p.id):(me.postoIds||[]);
  if(adm&&!sel){view.relD=null;return'<h2>Painel de gestão · escolha um eletroposto</h2>'+pickerHTML('rel','<button class="btn w" style="margin:0 0 12px" onclick="selPosto(\'rel\',\'*\')">Ver rede completa (todos os eletropostos)</button>')}
- const per=view.p??30,X=view.relD=relDados(sel&&sel!=='*'?[sel]:allowed,per),A=X.A,B=X.B,ct=per?`vs. ${per} dias anteriores`:'',d=(a,b,inv)=>dl(a,b,inv,ct),
+ const per=view.p??30,X=view.relD=relDados(sel&&sel!=='*'?[sel]:allowed,per),A=X.A,B=X.B,ct=per?`vs. ${per} dias anteriores`:'',d=(a,b,inv,has=!!(B&&B.n))=>dl(a,b,inv,ct,has),
  head=adm?(sel==='*'?'<button class="btn s" onclick="view.ap.rel=null;draw()">← Eletropostos</button><h2 style="margin-top:10px">Painel de gestão · rede completa</h2>':backBar('rel',by('postos',sel))):'<h2>Painel de gestão</h2>',
  chips=!adm&&allowed.length>1?`<div class="row" style="justify-content:flex-start;margin-bottom:8px"><button class="chip ${!sel?'on':''}" onclick="view.ap.rel=null;draw()">Todos os meus</button>${allowed.map(id=>`<button class="chip ${sel===id?'on':''}" onclick="view.ap.rel='${id}';draw()">${esc(pn(id))}</button>`).join('')}</div>`:'',
  box=(id,lbl,h,fb)=>window.Chart?`<div class="chbox" style="height:${h}px"><canvas id="${id}" role="img" aria-label="${lbl}"></canvas></div>`:fb,
  dnut=(id,lbl,centro,sub,L,fb)=>window.Chart?`<div class="chbox dnut"><canvas id="${id}" role="img" aria-label="${lbl}"></canvas><div class="dc"><b>${centro}</b><span>${sub}</span></div></div><div class="leg">${L.map(([l,c,v])=>`<span><i style="background:${c}"></i>${l}: <b>${v}</b></span>`).join('')}</div>`:fb,
  alvo=X.porCarr?'carregador':'eletroposto',hEO=Math.max(X.en.length*34,X.oc.length*30)+50;
  return`${head}${chips}<div class="row" style="margin-bottom:12px"><div class="row" style="justify-content:flex-start">${[[7,'7 dias'],[30,'30 dias'],[90,'90 dias'],[0,'Tudo']].map(([p,l])=>`<button class="chip ${per===p?'on':''}" onclick="view.p=${p};view.rn=10;draw()">${l}</button>`).join('')}</div><span class="mut">${X.periodoTxt}</span></div>
- <div class="kpis">${kp('Faturamento',R(A.pago),d(A.pago,B&&B.pago))}${kp('Energia entregue',fnum(A.kwh,'kWh'),d(A.kwh,B&&B.kwh))}${kp('Sessões',A.n,d(A.n,B&&B.n))}${kp('Ticket médio',R(A.tk),d(A.tk,B&&B.tk))}${kp('Clientes atendidos',A.cli,d(A.cli,B&&B.cli))}${kp('Ocupação',fnum(+A.occ.toFixed(1),'%'),d(A.occ,B&&B.occ)+'<span class="mut">do tempo em uso</span>')}${kp('A receber',R(A.pend),d(A.pend,B&&B.pend,1)+`<span class="mut">${A.npend} pendente${A.npend===1?'':'s'}</span>`)}${kp('Cancelamentos',fnum(Math.round(X.cancP),'%'),d(X.cancP,X.cancPB,1)+`<span class="mut">${X.canc} de ${X.nres} reservas</span>`)}</div>
+ <div class="kpis">${kp('Faturamento',R(A.pago),d(A.pago,B&&B.pago))}${kp('Energia entregue',fnum(A.kwh,'kWh'),d(A.kwh,B&&B.kwh))}${kp('Sessões',A.n,d(A.n,B&&B.n))}${kp('Ticket médio',R(A.tk),d(A.tk,B&&B.tk))}${kp('Clientes atendidos',A.cli,d(A.cli,B&&B.cli))}${kp('Ocupação',fnum(+A.occ.toFixed(1),'%'),d(A.occ,B&&B.occ)+'<span class="mut">do tempo em uso</span>')}${kp('A receber',R(A.pend),d(A.pend,B&&B.pend,1)+`<span class="mut">${A.npend} pendente${A.npend===1?'':'s'}</span>`)}${kp('Cancelamentos',fnum(Math.round(X.cancP),'%'),d(X.cancP,X.cancPB,1,X.nresB>0)+`<span class="mut">${X.canc} de ${X.nres} reservas</span>`)}</div>
  <div class="card"><b>Faturamento por ${X.passo===1?'dia':'semana'}</b>${box('chFat','Faturamento por período',260,barsSvg(X.buckets.map(b=>({l:b.l,a:b.pago,b:0}))))}</div>
  <div class="g2"><div class="card"><b>Horários de pico</b><div class="mut">Sessões iniciadas por hora do dia</div>${box('chHora','Sessões por hora do dia',230,barsSvg(X.hr.map((v,i)=>({l:i+'h',a:v,b:0}))))}</div>
  <div class="card"><b>Destaques do período</b>${X.ins.length?`<ul class="ins">${X.ins.map(([i,t])=>`<li><span>${i}</span><div>${t}</div></li>`).join('')}</ul>`:'<p class="mut">Sem sessões no período.</p>'}</div></div>
@@ -277,14 +278,15 @@ function cartHTML(p,cs){const g=view.pg;if(!cs.length)return`<div style="text-al
 <button class="btn w" onclick="payCard()">Pagar ${R(p.valor)}</button><button class="btn s w" onclick="fechaPag();go('cart')">Gerenciar cartões de crédito</button>`}
 function pagHTML(){const g=view.pg,p=by('pagamentos',g.id),cs=db.cartoes.filter(c=>c.uid===me.id);
  return`<div class="row"><b>Pagamento · ${R(p.valor)}</b><button class="btn s" onclick="fechaPag()" aria-label="Fechar">✕</button></div>
-<div class="row" style="justify-content:flex-start;margin:10px 0"><button class="chip ${g.t==='pix'?'on':''}" onclick="view.pg.t='pix';pagDraw()">Pix</button><button class="chip ${g.t==='cartao'?'on':''}" onclick="view.pg.t='cartao';pagDraw()">Crédito</button></div>${g.t==='pix'?pixHTML(p):cartHTML(p,cs)}`}
+<div class="row" style="justify-content:flex-start;margin:10px 0"><button class="chip ${g.t==='pix'?'on':''}" onclick="view.pg.t='pix';pagDraw()">Pix</button><button class="chip ${g.t==='cartao'?'on':''}" onclick="view.pg.t='cartao';pagDraw()">Crédito</button><button class="chip ${g.t==='saldo'?'on':''}" onclick="view.pg.t='saldo';pagDraw()">Carteira</button></div>${g.t==='pix'?pixHTML(p):g.t==='saldo'?`<p>Saldo disponível: <b>${R(me.saldo||0)}</b></p>${(me.saldo||0)>=p.valor?`<button class="btn w" onclick="paySaldo()">Pagar ${R(p.valor)} com a carteira</button>`:'<p class="mut">Saldo insuficiente. Use Pix ou crédito.</p>'}`:cartHTML(p,cs)}`}
 const pagDraw=()=>{const b=$('#pagbox');if(b)b.innerHTML=pagHTML()};
-function abrirPag(id){const k=db.cartoes.find(c=>c.uid===me.id);view.pg={id,t:'pix',c:k?k.id:null,n:0,exp:Date.now()+6e5,expired:false};
+function abrirPag(id,t){const k=db.cartoes.find(c=>c.uid===me.id);view.pg={id,t:t||'pix',c:k?k.id:null,n:0,exp:Date.now()+6e5,expired:false};
  const el=document.createElement('div');el.id='modal';el.style.cssText='position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:20;padding:16px';
  el.innerHTML='<div class="card" id="pagbox" style="width:100%;max-width:420px;max-height:92vh;overflow:auto;margin:0"></div>';document.body.append(el);pagDraw();
  clearInterval(view.pgT);view.pgT=setInterval(()=>{const t=$('#pxt');if(!view.pg||!t)return;const r=Math.max(0,Math.round((view.pg.exp-Date.now())/1000));if(!r){view.pg.expired=true;pagDraw()}else t.textContent=pad2(Math.floor(r/60))+':'+pad2(r%60)},1000)}
 function fechaPag(){clearInterval(view.pgT);const m=$('#modal');if(m)m.remove();view.pg=null}
 function quita(id,forma){const p=by('pagamentos',id);p.status='pago';p.forma=forma;p.pagoEm=Date.now();save();fechaPag();draw();toast(`Pagamento de ${R(p.valor)} confirmado (${forma}).`)}
+function paySaldo(){const p=by('pagamentos',view.pg.id);if((me.saldo||0)<p.valor)return;me.saldo=+(me.saldo-p.valor).toFixed(2);quita(p.id,'Carteira')}
 const payPix=()=>quita(view.pg.id,'PIX');
 function payCard(){const c=by('cartoes',view.pg.c),v=($('#cvv').value||'').trim();if(!c)return;
  if(!/^\d{3,4}$/.test(v)){$('#perr').textContent='Informe o CVV do cartão.';return}
@@ -349,7 +351,7 @@ ${ch}
 <rect x="114" y="100" width="6" height="3" rx="1.5" fill="#fff6c4"/><rect x="42" y="101" width="4" height="3" rx="1.5" fill="#d64545"/>
 <circle cx="60" cy="116" r="7" fill="#1d2b30"/><circle cx="60" cy="116" r="3.2" fill="#c9d2ce"/><circle cx="102" cy="116" r="7" fill="#1d2b30"/><circle cx="102" cy="116" r="3.2" fill="#c9d2ce"/></svg>`}
 function pcard(p,i){const cs=db.carregadores.filter(c=>c.pid===p.id),liv=cs.filter(c=>st(c)==='livre').length,tp={};cs.forEach(c=>tp[c.conector]=(tp[c.conector]||0)+1);
- return`<div class="card pcard${i===0?' perto':''}" onclick="abrirReserva('${p.id}')"><div class="pimg">${postoImg(p)}</div><div class="pinfo"><b><span class="num">${i+1}</span>${esc(p.nome)}</b><div class="mut">📍 ${esc(p.end)}</div><div style="font-size:13px"><b>${fkm(p.km)}</b>${i===0?' <span class="tag livre">mais perto</span>':''} · ${cs.length} carregadores</div><div class="row" style="justify-content:flex-start;gap:10px">${Object.entries(tp).map(([k,n])=>`<span class="cic">${connIcon(k,18)}${n}× ${k}</span>`).join('')}</div><div><span class="tag ${liv?'livre':'indisponivel'}">${liv} livre${liv===1?'':'s'}</span> <span class="mut">Proprietário: ${esc(p.dono)}</span></div><div><button class="btn s" style="margin-top:4px" onclick="event.stopPropagation();rota('${p.id}',1)">🧭 Rota</button></div></div></div>`}
+ return`<div class="card pcard${i===0?' perto':''}" onclick="rota('${p.id}',1)"><div class="pimg">${postoImg(p)}</div><div class="pinfo"><b><span class="num">${i+1}</span>${esc(p.nome)}</b><div class="mut">📍 ${esc(p.end)}</div><div style="font-size:13px"><b>${fkm(p.km)}</b>${i===0?' <span class="tag livre">mais perto</span>':''} · ${cs.length} carregadores</div><div class="row" style="justify-content:flex-start;gap:10px">${Object.entries(tp).map(([k,n])=>`<span class="cic">${connIcon(k,18)}${n}× ${k}</span>`).join('')}</div><div><span class="tag ${liv?'livre':'indisponivel'}">${liv} livre${liv===1?'':'s'}</span> <span class="mut">Proprietário: ${esc(p.dono)}</span></div></div></div>`}
 const go=t=>{tab=t;draw()};
 
 /* ---------- Rota até o eletroposto (OSRM: gratuito, sem chave) ---------- */
@@ -359,7 +361,8 @@ function rotaCardHTML(n){const r=view.rota;
  if(!r)return`<b>⚡ Mais perto de você:</b> ${esc(n.nome)} · <b>${fkm(n.km)}</b>${n.km>7?'<div class="mut">Nenhum eletroposto em até 7 km; mostrando os mais próximos.</div>':''}<div class="btnrow"><button class="btn" onclick="rota('${n.id}')">🧭 Traçar rota até o mais próximo</button><button class="btn s" onclick="abrirReserva('${n.id}')">Reservar</button></div>`;
  const p=by('postos',r.pid);if(r.carregando)return`<b>🧭 Calculando rota até ${esc(p.nome)}…</b>`;
  return`<div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div><b>🧭 Rota até ${esc(p.nome)}</b><div style="margin-top:4px"><b>${fkm(r.km)}</b> · cerca de <b>${fm(r.min)}</b> de carro</div><div class="mut">${r.aprox?'Estimativa em linha reta (serviço de rotas indisponível agora).':'Caminho pelas ruas a partir da sua localização.'}</div></div><button class="btn s" onclick="limpaRota()" aria-label="Limpar rota">✕</button></div>
- <div class="btnrow"><a class="btn" href="${gmaps(p)}" target="_blank" rel="noopener">Abrir no Google Maps</a><a class="btn s" href="${waze(p)}" target="_blank" rel="noopener">Waze</a><button class="btn s" onclick="abrirReserva('${p.id}')">Reservar</button></div>`}
+ <div class="btnrow"><button class="btn" onclick="view.rota.abrir=1;rotaUI();$('#lmap').scrollIntoView({behavior:'smooth',block:'center'})">🗺️ Abrir no mapa</button><button class="btn s" onclick="abrirReserva('${p.id}')">📅 Reservar antes de ir</button></div>${r.abrir?navBtns(p):''}`}
+const navBtns=p=>`<div class="btnrow"><a class="btn s" href="${gmaps(p)}" target="_blank" rel="noopener">Google Maps</a><a class="btn s" href="${waze(p)}" target="_blank" rel="noopener">Waze</a></div>`;
 function rotaUI(){const el=$('#rotacard');if(el)el.innerHTML=rotaCardHTML(nearby()[0])}
 function desenhaRota(fit){if(!mp||!window.L||!view.rota||!view.rota.pts||mp.getContainer()!==$('#lmap'))return;if(rotaL)rotaL.remove();const pts=view.rota.pts;
  rotaL=L.layerGroup([L.polyline(pts,{color:'#fff',weight:9,opacity:.9}),L.polyline(pts,{color:'#2f6fe0',weight:5,opacity:.95,dashArray:view.rota.aprox?'8 8':null})]).addTo(mp);
@@ -376,7 +379,7 @@ function irRota(pid){tab='disp';draw();setTimeout(()=>rota(pid,1),60)}
 /* ---------- Telas auxiliares ---------- */
 const KMKWH=6.5,KML=11,GASOL=6.29,CG='#0ea968',CA='#e59a0c',CB='#2f6fe0',CR='#d64545',CO='#8a9892';
 function kp(l,v,extra){return`<div class="card kpi"><div class="kl">${l}</div><div class="kv">${v}</div><div class="kd">${extra||''}</div></div>`}
-function dl(a,b,inv,t){if(b==null||!t)return'';if(!b)return a?'<span class="mut">sem dados no período anterior</span>':'';const p=(a-b)/Math.abs(b)*100;if(Math.abs(p)<.5)return`<span class="mut">estável ${t}</span>`;
+function dl(a,b,inv,t,has=true){if(b==null||!t)return'';if(!b){if(!has)return a?'<span class="mut">sem dados no período anterior</span>':'';return a?`<span class="${inv?'down':'up'}">▲</span><span class="mut">antes 0 ${t}</span>`:`<span class="mut">estável ${t}</span>`}const p=(a-b)/Math.abs(b)*100;if(Math.abs(p)<.5)return`<span class="mut">estável ${t}</span>`;
  return`<span class="${(inv?p<0:p>0)?'up':'down'}">${p>0?'▲':'▼'} ${Math.abs(p).toFixed(0)}%</span><span class="mut">${t}</span>`}
 function resCard(r,now){const c=by('carregadores',r.cid),p=by('postos',c.pid),v=by('veiculos',r.vid),ativa=r.status==='ativa',fimR=r.inicio+DUR,
  quando=!ativa?'':now<r.inicio?`⏱ Começa em ${fm((r.inicio-now)/6e4)}`:now<fimR?`⚡ Em andamento · até ${D(fimR).slice(-5)}`:'⌛ Horário encerrado';
@@ -412,15 +415,15 @@ function relDados(scope,per){const now=Date.now(),dMs=24*H,hj=new Date();hj.setH
  en=(porCarr?cs.map(c=>({l:c.nome,v:Math.round((porC[c.id]||{}).kwh||0)})):scope.map(id=>({l:pn(id),v:Math.round(cs.filter(c=>c.pid===id).reduce((a,c)=>a+((porC[c.id]||{}).kwh||0),0))}))).sort((a,b)=>b.v-a.v),
  oc=cs.map(c=>({c,l:porCarr?c.nome:`${c.nome} · ${bairro(c.pid)}`,v:+(((porC[c.id]||{}).ms||0)/span*100).toFixed(1),n:(porC[c.id]||{}).n||0})).sort((a,b)=>b.v-a.v),
  ins=[],tot=pgs.pix+pgs.cart,fd=t=>new Date(t).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
- if(ss.length){const ph=hr.indexOf(Math.max(...hr)),wi=wd.indexOf(Math.max(...wd)),top=[...oc].sort((a,b)=>b.n-a.n)[0],low=oc[oc.length-1];
+ if(ss.length){const ph=hr.indexOf(Math.max(...hr)),wi=wd.indexOf(Math.max(...wd)),top=oc[0],low=oc[oc.length-1];
   ins.push(['⏰',`Pico de uso entre <b>${ph}h e ${ph+1}h</b>: planeje a equipe para esse horário.`]);
   ins.push(['📅',`Dia mais movimentado: <b>${['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'][wi]}</b>.`]);
-  ins.push(['🔌',`Mais usado: <b>${esc(top.c.nome)}</b> (${esc(pn(top.c.pid))}) com ${top.n} sessões.`]);
-  if(oc.length>1)ins.push(['💤',`Mais ocioso: <b>${esc(low.l)}</b> (${fnum(low.v,'%')} de ocupação). Bom candidato a tarifa promocional fora do pico.`]);
+  ins.push(['🔌',`Mais usado: <b>${esc(top.c.nome)}</b> (${esc(pn(top.c.pid))}) com ${fnum(top.v,'%')} de ocupação.`]);
+  if(oc.length>1&&low!==top)ins.push(['💤',`Mais ocioso: <b>${esc(low.l)}</b> (${fnum(low.v,'%')} de ocupação). Bom candidato a tarifa promocional fora do pico.`]);
   if(tot)ins.push(['💳',`<b>${Math.round(pgs.pix/tot*100)}%</b> da receita recebida veio via Pix.`]);
   if(A.npend)ins.push(['⚠️',`${A.npend} pagamento${A.npend>1?'s':''} pendente${A.npend>1?'s':''} somando <b>${R(A.pend)}</b>.`])}
  const rows=ss.map(s=>{const q=pgOf(s),c=by('carregadores',s.cid),u=by('users',s.uid);return{ini:s.ini,posto:pn(c.pid),carr:c.nome,cli:u?u.nome:'—',kwh:s.kwh,valor:s.valor,st:q.status,forma:q.forma||''}});
- return{A,B,passo,buckets,hr,pgs,en,oc,ins,rows,porCarr,nres:rs.length,rsC:rs.filter(r=>r.status==='concluida').length,rsA:rs.filter(r=>r.status==='ativa').length,canc:rs.filter(r=>r.status==='cancelada').length,cancP:cancOf(rs),cancPB:rsB&&rsB.length?cancOf(rsB):rsB?0:null,periodoTxt:`${fd(t0)} a ${fd(now)}`}}
+ return{A,B,passo,buckets,hr,pgs,en,oc,ins,rows,porCarr,nres:rs.length,rsC:rs.filter(r=>r.status==='concluida').length,rsA:rs.filter(r=>r.status==='ativa').length,canc:rs.filter(r=>r.status==='cancelada').length,cancP:cancOf(rs),cancPB:rsB&&rsB.length?cancOf(rsB):null,nresB:rsB?rsB.length:0,periodoTxt:`${fd(t0)} a ${fd(now)}`}}
 let charts=[];const killCharts=()=>{charts.forEach(c=>c.destroy());charts=[]};
 function relCharts(X){if(!window.Chart||!X)return;const C=Chart.defaults;C.font.family="'Space Grotesk',system-ui,sans-serif";C.color='#5f736b';C.borderColor='#e6ede9';
  const mk=(id,cfg)=>{const el=document.getElementById(id);if(el)charts.push(new Chart(el,cfg))},base={responsive:true,maintainAspectRatio:false,animation:{duration:450}},
@@ -457,7 +460,9 @@ function reservar(){const f=view.f,c=f.c?by('carregadores',f.c):null,v=by('veicu
  if(c.base==='indisponivel')return toast('Carregador indisponível não pode ser reservado.');
  if(!okConn(v,c))return toast('O conector deste carregador é incompatível com o veículo.');
  if(db.reservas.some(r=>r.cid===c.id&&r.status==='ativa'&&ini<r.inicio+DUR&&r.inicio<ini+DUR))return toast('Carregador já reservado neste período.');
- db.reservas.push({id:uid(),uid:me.id,vid:f.v,cid:c.id,inicio:ini,status:'ativa'});save();toast(`Reserva confirmada: ${c.nome}, ${D(ini)} (2h).`);go('mres')}
+ db.reservas.push({id:uid(),uid:me.id,vid:f.v,cid:c.id,inicio:ini,status:'ativa'});save();const p=by('postos',c.pid);
+ const el=document.createElement('div');el.id='modal';el.style.cssText='position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:20;padding:16px';
+ el.innerHTML=`<div class="card" style="width:100%;max-width:400px;margin:0;text-align:center"><div style="font-size:40px">✅</div><b style="font-size:18px">Reserva confirmada!</b><p>${esc(p.nome)}<br>${esc(c.nome)} · ${D(ini)} (2h)</p><p class="mut">Como chegar:</p>${loc?navBtns(p):''}<div class="btnrow"><button class="btn" onclick="$('#modal').remove();irRota('${p.id}')">🧭 Ver caminho no mapa</button><button class="btn s" onclick="$('#modal').remove();go('mres')">Minhas reservas</button></div></div>`;document.body.append(el)}
 function cancelar(id){const r=by('reservas',id);if(r.inicio-Date.now()<H)return toast('Cancelamento só é permitido com mais de 1h de antecedência.');
  if(!confirm('Cancelar esta reserva?'))return;r.status='cancelada';save();draw();toast('Reserva cancelada e horário liberado.')}
 function addVeic(){const v={id:uid(),uid:me.id,marca:$('#vm').value.trim(),modelo:$('#vo').value.trim(),ano:+$('#va').value,placa:$('#vp').value.trim().toUpperCase(),conector:$('#vc').value,carroc:$('#vk').value,bateria:+$('#vb').value,foto:($('#vf')?.value||'').trim()};
@@ -489,7 +494,7 @@ function addFunc(){const n=$('#fn').value.trim(),e=$('#fe').value.trim().toLower
 
 function draw(){const a=$('#app');killCharts();
  if(!me){a.innerHTML=view.cad?cadView():loginView();return}
- a.innerHTML=`<header><b>E-<span>Posto</span></b><div><small>${esc(me.nome)} · ${me.perfil}</small><button class="btn s" style="color:#fff;border-color:#fff4" onclick="logout()">Sair</button></div></header>
+ a.innerHTML=`<header><b>E-<span>Posto</span></b><div><small>${esc(me.nome.split(' ')[0])}${me.perfil==='cliente'?` · <b class="saldo">💰 ${R(me.saldo||0)}</b>`:' · '+me.perfil}</small><button class="btn s" style="color:#fff;border-color:#fff4" onclick="logout()">Sair</button></div></header>
  <nav>${TABS[me.perfil].map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${n}</button>`).join('')}</nav><main class="${tab==='rel'?'wide':''}">${screens[tab]()}</main>`;if(tab==='disp')mapInit();if(tab==='rel')relCharts(view.relD)}
 pedeLoc();draw();
 </script></body></html>
